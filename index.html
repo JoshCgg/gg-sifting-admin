@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+\<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -101,6 +101,14 @@
     .weeks-grid { display: flex; flex-direction: column; gap: 12px; }
     .week-card { background: white; border-radius: 14px; padding: 20px 24px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; box-shadow: 0 2px 8px rgba(27,69,106,0.05); transition: box-shadow 0.15s; }
     .week-card:hover { box-shadow: 0 4px 16px rgba(27,69,106,0.10); }
+
+    .btn-card-action { border: none; border-radius: 8px; padding: 6px 14px; font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+    .btn-edit  { background: rgba(27,69,106,0.08); color: var(--indigo); }
+    .btn-edit:hover  { background: var(--indigo); color: white; }
+    .btn-close-week { background: rgba(217,48,37,0.08); color: #b91c1c; }
+    .btn-close-week:hover { background: #b91c1c; color: white; }
+    .btn-reopen { background: rgba(34,197,94,0.10); color: #16a34a; }
+    .btn-reopen:hover { background: #16a34a; color: white; }
     .week-card-name { font-size: 16px; font-weight: 700; color: var(--indigo); }
     .week-card-meta { font-size: 12px; color: var(--text-soft); display: flex; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
     .week-card-code { font-family: monospace; background: var(--bright-gray); padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: 700; color: var(--indigo); letter-spacing: 0.08em; }
@@ -516,7 +524,7 @@
     import { initializeApp }    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
                                 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp }
+    import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, query, where, serverTimestamp }
                                 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -535,8 +543,9 @@
     provider.setCustomParameters({ prompt: 'select_account' });
 
     const ALLOWED_DOMAIN = 'globalgates.info';
-    let currentUser  = null;
-    let surveyMode   = 'inapp'; // 'inapp' | 'link'
+    let currentUser    = null;
+    let surveyMode     = 'inapp'; // 'inapp' | 'link'
+    let editingWeekId  = null;    // null = new week, string = editing existing week
 
     // ── Survey mode toggle (global so onclick can reach it) ───
     window.setSurveyMode = function(mode) {
@@ -686,7 +695,7 @@
           empty.style.display = 'none'; grid.style.display = 'flex';
           grid.innerHTML = weeks.map(w => `
             <div class="week-card">
-              <div>
+              <div style="flex:1;min-width:0;">
                 <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;">
                   <span class="week-card-name">${w.label}</span>
                   <span class="status-badge ${w.status}">${w.status}</span>
@@ -696,38 +705,145 @@
                   <span>📅 ${formatDate(w.startDate)} – ${formatDate(w.endDate)}</span>
                 </div>
               </div>
-              <span class="week-card-code">${w.codeWord}</span>
+              <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap;">
+                <span class="week-card-code">${w.codeWord}</span>
+                <button class="btn-card-action btn-edit" data-id="${w.id}">Edit</button>
+                ${w.status !== 'closed'
+                  ? `<button class="btn-card-action btn-close-week" data-id="${w.id}">Close</button>`
+                  : `<button class="btn-card-action btn-reopen" data-id="${w.id}">Reopen</button>`
+                }
+              </div>
             </div>
           `).join('');
+
+          // Wire up Edit buttons
+          grid.querySelectorAll('.btn-edit').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const week = weeks.find(w => w.id === btn.dataset.id);
+              if (week) startWizard(week);
+            });
+          });
+
+          // Wire up Close buttons
+          grid.querySelectorAll('.btn-close-week').forEach(btn => {
+            btn.addEventListener('click', () => closeWeek(btn.dataset.id));
+          });
+
+          // Wire up Reopen buttons
+          grid.querySelectorAll('.btn-reopen').forEach(btn => {
+            btn.addEventListener('click', () => reopenWeek(btn.dataset.id));
+          });
         }
       } catch (err) {
         console.error(err); showToast('Could not load weeks.', 'err');
       }
     }
 
-    document.getElementById('btn-new-week').addEventListener('click', startWizard);
-    document.getElementById('btn-new-week-empty').addEventListener('click', startWizard);
-    document.getElementById('btn-back-dashboard').addEventListener('click', showDashboard);
+    async function closeWeek(weekId) {
+      if (!confirm('Close this week? The field team will no longer be able to submit contacts using this code word.')) return;
+      try {
+        await updateDoc(doc(db, 'weeks', weekId), { status: 'closed' });
+        showToast('Week closed.', 'success');
+        showDashboard();
+      } catch (err) {
+        console.error(err); showToast('Could not close week.', 'err');
+      }
+    }
+
+    async function reopenWeek(weekId) {
+      try {
+        await updateDoc(doc(db, 'weeks', weekId), { status: 'active' });
+        showToast('Week reopened.', 'success');
+        showDashboard();
+      } catch (err) {
+        console.error(err); showToast('Could not reopen week.', 'err');
+      }
+    }
 
     // ── Wizard ───────────────────────────────────────────────
-    function startWizard() {
+    function startWizard(existingWeek) {
       resetWizardState();
-      document.getElementById('f-label').value    = '';
-      document.getElementById('f-city').value     = '';
-      document.getElementById('f-city-other').value = '';
-      document.getElementById('city-other-wrap').style.display = 'none';
-      document.getElementById('f-start').value    = '';
-      document.getElementById('f-end').value      = '';
-      document.getElementById('f-codeword').value = genCodeWord();
-      document.getElementById('f-survey-url').value = '';
+      editingWeekId = existingWeek ? existingWeek.id : null;
+
+      if (existingWeek) {
+        // Pre-fill basics
+        document.getElementById('f-label').value    = existingWeek.label || '';
+        document.getElementById('f-start').value    = existingWeek.startDate || '';
+        document.getElementById('f-end').value      = existingWeek.endDate || '';
+        document.getElementById('f-codeword').value = existingWeek.codeWord || '';
+
+        // City
+        const cityEl = document.getElementById('f-city');
+        const knownCities = Array.from(cityEl.options).map(o => o.value);
+        if (knownCities.includes(existingWeek.city)) {
+          cityEl.value = existingWeek.city;
+          document.getElementById('city-other-wrap').style.display = 'none';
+        } else if (existingWeek.city) {
+          cityEl.value = 'other';
+          document.getElementById('f-city-other').value = existingWeek.city;
+          document.getElementById('city-other-wrap').style.display = 'block';
+        }
+
+        // Modules — turn on only what was active
+        if (existingWeek.activeModules && existingWeek.activeModules.length) {
+          ws.modules.forEach(m => { m.on = existingWeek.activeModules.includes(m.id); });
+        }
+
+        // Tally fields
+        if (existingWeek.tallyFields && existingWeek.tallyFields.length) {
+          ws.tally.forEach(t => {
+            const saved = existingWeek.tallyFields.find(f => f.id === t.id);
+            if (saved) t.on = saved.active;
+          });
+          // Restore custom fields
+          ws.customTallyFields = existingWeek.tallyFields
+            .filter(f => f.custom)
+            .map(f => f.label);
+        }
+
+        // Recipients
+        if (existingWeek.followUpRecipients && existingWeek.followUpRecipients.length) {
+          ws.recipients = existingWeek.followUpRecipients.map(r => ({ ...r }));
+        }
+
+        // Survey
+        if (existingWeek.survey) {
+          setSurveyMode(existingWeek.survey.type || 'inapp');
+          if (existingWeek.survey.type === 'link') {
+            document.getElementById('f-survey-url').value = existingWeek.survey.url || '';
+          } else {
+            ws.newsletters = (existingWeek.survey.newsletterOptions || []).map(n => ({ ...n }));
+          }
+        }
+
+        // Update launch button label
+        document.getElementById('btn-launch').textContent = '💾 Save Changes';
+
+      } else {
+        // New week defaults
+        document.getElementById('f-label').value    = '';
+        document.getElementById('f-city').value     = '';
+        document.getElementById('f-city-other').value = '';
+        document.getElementById('city-other-wrap').style.display = 'none';
+        document.getElementById('f-start').value    = '';
+        document.getElementById('f-end').value      = '';
+        document.getElementById('f-codeword').value = genCodeWord();
+        document.getElementById('f-survey-url').value = '';
+        document.getElementById('btn-launch').textContent = '🚀 Launch Week';
+      }
+
       document.querySelectorAll('.field-error').forEach(el => el.style.display = 'none');
       document.querySelectorAll('.field input.invalid, .field select.invalid').forEach(el => el.classList.remove('invalid'));
-      setSurveyMode('inapp');
+      setSurveyMode(surveyMode);
       renderModules(); renderTallyFields(); renderRecipients(); renderNewsletters();
       document.getElementById('screen-dashboard').style.display = 'none';
       document.getElementById('screen-wizard').style.display   = 'block';
       goStep(1);
     }
+
+    document.getElementById('btn-new-week').addEventListener('click', () => startWizard(null));
+    document.getElementById('btn-new-week-empty').addEventListener('click', () => startWizard(null));
+    document.getElementById('btn-back-dashboard').addEventListener('click', showDashboard);
 
     document.getElementById('btn-regen').addEventListener('click', () => {
       document.getElementById('f-codeword').value = genCodeWord();
@@ -943,11 +1059,12 @@
       }
     }
 
-    // ── Launch → Firestore ───────────────────────────────────
+    // ── Launch / Save → Firestore ────────────────────────────
     document.getElementById('btn-launch').addEventListener('click', async () => {
       if (!currentUser) return;
       const btn = document.getElementById('btn-launch');
-      btn.disabled = true; btn.textContent = 'Saving…';
+      btn.disabled = true;
+      btn.textContent = 'Saving…';
 
       const surveyConfig = surveyMode === 'inapp'
         ? { type: 'inapp', newsletterOptions: ws.newsletters.filter(n => n.name.trim()) }
@@ -959,9 +1076,6 @@
         city:      getCityValue(),
         startDate: document.getElementById('f-start').value,
         endDate:   document.getElementById('f-end').value,
-        status:    'active',
-        createdBy: currentUser.uid,
-        createdAt: serverTimestamp(),
         activeModules: ws.modules.filter(m => m.on).map(m => m.id),
         tallyFields: [
           ...ws.tally.map(t => ({ id: t.id, label: t.label, active: t.on })),
@@ -972,12 +1086,26 @@
       };
 
       try {
-        await addDoc(collection(db, 'weeks'), weekData);
-        showToast('Week launched! 🚀', 'success');
+        if (editingWeekId) {
+          // Editing existing week — update only the editable fields (preserve status, createdBy, createdAt)
+          await updateDoc(doc(db, 'weeks', editingWeekId), weekData);
+          showToast('Week updated! ✓', 'success');
+        } else {
+          // New week — set status and ownership
+          await addDoc(collection(db, 'weeks'), {
+            ...weekData,
+            status:    'active',
+            createdBy: currentUser.uid,
+            createdAt: serverTimestamp(),
+          });
+          showToast('Week launched! 🚀', 'success');
+        }
         setTimeout(() => showDashboard(), 900);
       } catch (err) {
-        console.error(err); showToast('Save failed — check console.', 'err');
-        btn.disabled = false; btn.textContent = '🚀 Launch Week';
+        console.error(err);
+        showToast('Save failed — check console.', 'err');
+        btn.disabled = false;
+        btn.textContent = editingWeekId ? '💾 Save Changes' : '🚀 Launch Week';
       }
     });
 
