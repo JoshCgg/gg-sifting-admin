@@ -15,7 +15,6 @@
       --bright-gray: #ECF1EE;
       --white:       #ffffff;
       --error:       #d93025;
-      --success:     #22c55e;
       --text-main:   #1a2b3c;
       --text-soft:   #6b7a8d;
       --border:      rgba(27,69,106,0.12);
@@ -23,7 +22,6 @@
 
     html, body { height: 100%; font-family: 'Montserrat', sans-serif; background: var(--indigo); }
 
-    /* LOGIN BG */
     body::before {
       content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
       background:
@@ -31,15 +29,9 @@
         radial-gradient(ellipse 60% 80% at -10% 100%, rgba(243,142,83,0.12) 0%, transparent 55%);
     }
 
-    .skyline {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      height: 120px; opacity: 0.07; pointer-events: none; z-index: 0;
-    }
+    .skyline { position: fixed; bottom: 0; left: 0; right: 0; height: 120px; opacity: 0.07; pointer-events: none; z-index: 0; }
 
-    .card-wrap {
-      position: relative; z-index: 1; min-height: 100vh;
-      display: flex; align-items: center; justify-content: center; padding: 24px;
-    }
+    .card-wrap { position: relative; z-index: 1; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
 
     .login-card {
       background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.10);
@@ -49,10 +41,7 @@
       animation: fadeUp 0.5s cubic-bezier(0.22,1,0.36,1) both;
     }
 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(24px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
 
     .logo { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; }
     .logo-mark { width: 44px; height: 44px; background: var(--blue-jeans); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
@@ -65,20 +54,13 @@
     .login-card h1 span { color: var(--orange); }
     .login-subhead { font-family: 'Libre Baskerville', serif; font-style: italic; font-size: 14px; color: rgba(236,241,238,0.6); margin-bottom: 36px; line-height: 1.5; }
 
-    .btn-google {
-      width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px;
-      padding: 14px 20px; background: white; border: none; border-radius: 12px;
-      font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 600; color: #3c4043;
-      cursor: pointer; transition: all 0.15s; box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-    }
+    .btn-google { width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 14px 20px; background: white; border: none; border-radius: 12px; font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 600; color: #3c4043; cursor: pointer; transition: all 0.15s; box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
     .btn-google:hover { background: #f8f9fa; box-shadow: 0 4px 16px rgba(0,0,0,0.3); transform: translateY(-1px); }
-    .btn-google:active { transform: translateY(0); }
     .btn-google:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
     .google-icon { width: 20px; height: 20px; flex-shrink: 0; }
 
     .status-msg { margin-top: 16px; padding: 12px 14px; border-radius: 10px; font-size: 13px; font-weight: 500; line-height: 1.4; display: none; }
     .status-msg.error { display: block; background: rgba(217,48,37,0.15); border: 1px solid rgba(217,48,37,0.35); color: #ff9a94; }
-    .status-msg.info  { display: block; background: rgba(83,184,243,0.12); border: 1px solid rgba(83,184,243,0.25); color: var(--blue-jeans); }
 
     .login-divider { margin: 28px 0 20px; display: flex; align-items: center; gap: 12px; }
     .login-divider::before, .login-divider::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.10); }
@@ -89,11 +71,7 @@
     /* APP SHELL */
     #app { display: none; min-height: 100vh; flex-direction: column; background: var(--bright-gray); }
 
-    .topbar {
-      background: var(--indigo); padding: 0 24px; height: 60px;
-      display: flex; align-items: center; justify-content: space-between;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.15); position: sticky; top: 0; z-index: 100;
-    }
+    .topbar { background: var(--indigo); padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 12px rgba(0,0,0,0.15); position: sticky; top: 0; z-index: 100; }
     .topbar-left { display: flex; align-items: center; gap: 10px; }
     .topbar-logo { width: 32px; height: 32px; background: var(--blue-jeans); border-radius: 7px; display: flex; align-items: center; justify-content: center; }
     .topbar-logo span { font-weight: 800; font-size: 13px; color: white; }
@@ -108,17 +86,11 @@
 
     /* DASHBOARD */
     #screen-dashboard { padding: 32px 24px; max-width: 800px; margin: 0 auto; width: 100%; animation: fadeUp 0.4s cubic-bezier(0.22,1,0.36,1) both; }
-
     .dash-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 16px; }
     .dash-header h2 { font-size: 22px; font-weight: 800; color: var(--indigo); margin-bottom: 4px; }
     .dash-header p { font-family: 'Libre Baskerville', serif; font-style: italic; font-size: 14px; color: var(--text-soft); }
 
-    .btn-primary {
-      background: var(--indigo); color: white; border: none; border-radius: 10px;
-      padding: 12px 20px; font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 700;
-      cursor: pointer; transition: all 0.15s; white-space: nowrap;
-      display: inline-flex; align-items: center; gap: 8px;
-    }
+    .btn-primary { background: var(--indigo); color: white; border: none; border-radius: 10px; padding: 12px 20px; font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.15s; white-space: nowrap; display: inline-flex; align-items: center; gap: 8px; }
     .btn-primary:hover { background: #163a5a; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(27,69,106,0.3); }
 
     .weeks-empty { background: white; border-radius: 14px; padding: 48px 32px; text-align: center; border: 2px dashed var(--border); }
@@ -162,6 +134,7 @@
     .field input[type="text"],
     .field input[type="date"],
     .field input[type="email"],
+    .field input[type="url"],
     .field select,
     .field textarea {
       width: 100%; padding: 11px 14px; border: 1.5px solid var(--border);
@@ -182,6 +155,9 @@
 
     .field-hint { font-size: 12px; color: var(--text-soft); margin-top: 5px; line-height: 1.4; }
     .field-error { font-size: 12px; color: var(--error); margin-top: 5px; font-weight: 600; display: none; }
+
+    /* City "other" reveal */
+    #city-other-wrap { margin-top: 10px; display: none; }
 
     .toggle-list { display: flex; flex-direction: column; gap: 10px; }
     .toggle-item { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px; border-radius: 10px; border: 1.5px solid var(--border); cursor: pointer; transition: all 0.15s; user-select: none; gap: 12px; }
@@ -211,6 +187,16 @@
     .custom-field-row input { padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'Montserrat', sans-serif; font-size: 13px; width: 100%; }
     .custom-field-row input:focus { outline: none; border-color: var(--blue-jeans); }
 
+    /* Survey toggle */
+    .survey-mode-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+    .survey-mode-btn { padding: 14px 16px; border-radius: 12px; border: 1.5px solid var(--border); background: white; font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.15s; text-align: center; line-height: 1.4; }
+    .survey-mode-btn:hover { border-color: var(--blue-jeans); color: var(--indigo); }
+    .survey-mode-btn.active { border-color: var(--blue-jeans); background: rgba(83,184,243,0.08); color: var(--indigo); }
+    .survey-mode-btn .mode-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+    .survey-panel { display: none; }
+    .survey-panel.active { display: block; }
+
+    /* Review */
     .review-section { margin-bottom: 20px; }
     .review-section-title { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--blue-jeans); margin-bottom: 10px; }
     .review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; }
@@ -314,36 +300,53 @@
         <div class="progress-label">Step <span id="prog-current">1</span> of 5 — <span id="prog-title">Basics</span></div>
       </div>
 
-      <!-- Step 1 -->
+      <!-- STEP 1: Basics -->
       <div class="wizard-step active" id="step-1">
         <div class="step-card">
           <div class="step-title">Week Basics</div>
           <div class="step-subtitle">Name, location, dates, and code word for this Sifting Week.</div>
+
           <div class="field">
             <label>Week Name</label>
             <input type="text" id="f-label" placeholder="e.g. NYC Spring 2026" maxlength="60" />
             <div class="field-error" id="err-label">Please enter a week name.</div>
           </div>
-          <div class="field-row">
-            <div class="field">
-              <label>City</label>
-              <input type="text" id="f-city" placeholder="e.g. New York City" />
-              <div class="field-error" id="err-city">Please enter a city.</div>
+
+          <!-- FIX 1: City dropdown replacing city + region fields -->
+          <div class="field">
+            <label>City</label>
+            <select id="f-city">
+              <option value="">Select city…</option>
+              <optgroup label="North America">
+                <option value="New York City">New York City, NY</option>
+                <option value="Los Angeles">Los Angeles, CA</option>
+                <option value="Chicago">Chicago, IL</option>
+                <option value="Houston">Houston, TX</option>
+                <option value="Dallas">Dallas, TX</option>
+                <option value="Atlanta">Atlanta, GA</option>
+                <option value="Washington DC">Washington, DC</option>
+                <option value="Boston">Boston, MA</option>
+                <option value="Minneapolis">Minneapolis, MN</option>
+                <option value="Denver">Denver, CO</option>
+                <option value="Seattle">Seattle, WA</option>
+                <option value="San Francisco">San Francisco, CA</option>
+                <option value="Phoenix">Phoenix, AZ</option>
+                <option value="Detroit">Detroit, MI</option>
+                <option value="Toronto">Toronto, Canada</option>
+              </optgroup>
+              <optgroup label="International">
+                <option value="London">London, UK</option>
+                <option value="Paris">Paris, France</option>
+                <option value="Dubai">Dubai, UAE</option>
+              </optgroup>
+              <option value="other">Other (type below)</option>
+            </select>
+            <div id="city-other-wrap">
+              <input type="text" id="f-city-other" placeholder="Enter city name…" style="margin-top:8px;" />
             </div>
-            <div class="field">
-              <label>Region</label>
-              <select id="f-region">
-                <option value="">Select…</option>
-                <option value="northeast">Northeast</option>
-                <option value="southeast">Southeast</option>
-                <option value="midwest">Midwest</option>
-                <option value="southwest">Southwest</option>
-                <option value="west">West</option>
-                <option value="international">International</option>
-              </select>
-              <div class="field-error" id="err-region">Please select a region.</div>
-            </div>
+            <div class="field-error" id="err-city">Please select or enter a city.</div>
           </div>
+
           <div class="field-row">
             <div class="field">
               <label>Start Date</label>
@@ -356,13 +359,14 @@
               <div class="field-error" id="err-end">End date must be after start.</div>
             </div>
           </div>
+
           <div class="field">
             <label>Code Word</label>
             <div class="code-word-wrap">
               <input type="text" id="f-codeword" placeholder="e.g. NYCSPRING26" maxlength="12" />
               <button class="btn-regen" id="btn-regen" title="Generate new code word">🔀</button>
             </div>
-            <div class="field-hint">All-caps, 4–12 characters. Field teams enter this to access week config.</div>
+            <div class="field-hint">All-caps, 4–12 characters. Field teams enter this to pull week config.</div>
             <div class="field-error" id="err-codeword">Code word must be 4–12 letters/numbers, no spaces.</div>
           </div>
         </div>
@@ -372,7 +376,7 @@
         </div>
       </div>
 
-      <!-- Step 2 -->
+      <!-- STEP 2: Modules -->
       <div class="wizard-step" id="step-2">
         <div class="step-card">
           <div class="step-title">Training Modules</div>
@@ -385,7 +389,7 @@
         </div>
       </div>
 
-      <!-- Step 3 -->
+      <!-- STEP 3: Tally Fields -->
       <div class="wizard-step" id="step-3">
         <div class="step-card">
           <div class="step-title">Tally Fields</div>
@@ -402,7 +406,7 @@
         </div>
       </div>
 
-      <!-- Step 4 -->
+      <!-- STEP 4: Follow-Up Routing -->
       <div class="wizard-step" id="step-4">
         <div class="step-card">
           <div class="step-title">Follow-Up Routing</div>
@@ -417,13 +421,45 @@
         </div>
       </div>
 
-      <!-- Step 5 -->
+      <!-- STEP 5: Survey -->
       <div class="wizard-step" id="step-5">
         <div class="step-card">
-          <div class="step-title">Survey &amp; Newsletter</div>
-          <div class="step-subtitle">Add newsletter options shown on the post-trip survey. These are optional.</div>
-          <div id="newsletter-list"></div>
-          <button class="btn-add" id="btn-add-newsletter">+ Add newsletter option</button>
+          <div class="step-title">Post-Trip Survey</div>
+          <div class="step-subtitle">Choose how team members complete the post-trip survey.</div>
+
+          <!-- FIX 4: Survey mode toggle -->
+          <div class="survey-mode-toggle">
+            <button class="survey-mode-btn active" id="survey-btn-inapp" onclick="setSurveyMode('inapp')">
+              <span class="mode-icon">📋</span>
+              In-App Survey
+            </button>
+            <button class="survey-mode-btn" id="survey-btn-link" onclick="setSurveyMode('link')">
+              <span class="mode-icon">🔗</span>
+              External Link
+            </button>
+          </div>
+
+          <!-- In-app panel: newsletter options -->
+          <div class="survey-panel active" id="survey-panel-inapp">
+            <p style="font-size:13px;color:var(--text-soft);margin-bottom:14px;line-height:1.5;">
+              The built-in survey collects highlights, challenges, and whether they'd return. Add newsletter signup options below — team members can opt in during the survey.
+            </p>
+            <div id="newsletter-list"></div>
+            <button class="btn-add" id="btn-add-newsletter">+ Add newsletter option</button>
+          </div>
+
+          <!-- External link panel -->
+          <div class="survey-panel" id="survey-panel-link">
+            <p style="font-size:13px;color:var(--text-soft);margin-bottom:14px;line-height:1.5;">
+              Paste your survey link below. The post-trip tab in the field app will show a button that opens it in the browser.
+            </p>
+            <div class="field">
+              <label>Survey URL</label>
+              <input type="url" id="f-survey-url" placeholder="https://forms.gle/yourformlink" />
+              <div class="field-hint">Google Forms, Typeform, JotForm — any link works.</div>
+              <div class="field-error" id="err-survey-url">Please enter a valid URL.</div>
+            </div>
+          </div>
         </div>
         <div class="wizard-nav">
           <button class="btn-back" id="btn-step5-back">← Back</button>
@@ -431,7 +467,7 @@
         </div>
       </div>
 
-      <!-- Step 6: Review -->
+      <!-- STEP 6: Review -->
       <div class="wizard-step" id="step-6">
         <div class="step-card">
           <div class="step-title">Review &amp; Launch</div>
@@ -445,7 +481,6 @@
             <div class="review-grid">
               <div class="review-item"><span class="review-item-label">Week Name</span><span class="review-item-value" id="review-label">—</span></div>
               <div class="review-item"><span class="review-item-label">City</span><span class="review-item-value" id="review-city">—</span></div>
-              <div class="review-item"><span class="review-item-label">Region</span><span class="review-item-value" id="review-region">—</span></div>
               <div class="review-item"><span class="review-item-label">Dates</span><span class="review-item-value" id="review-dates">—</span></div>
             </div>
           </div>
@@ -462,8 +497,8 @@
             <div class="review-list" id="review-recipients"></div>
           </div>
           <div class="review-section">
-            <div class="review-section-title">Newsletter Options</div>
-            <div class="review-list" id="review-newsletter"></div>
+            <div class="review-section-title">Survey</div>
+            <div id="review-survey"></div>
           </div>
         </div>
         <div class="wizard-nav">
@@ -500,27 +535,51 @@
     provider.setCustomParameters({ prompt: 'select_account' });
 
     const ALLOWED_DOMAIN = 'globalgates.info';
-    let currentUser = null;
+    let currentUser  = null;
+    let surveyMode   = 'inapp'; // 'inapp' | 'link'
 
-    // ── Default data ──────────────────────────────────────────
+    // ── Survey mode toggle (global so onclick can reach it) ───
+    window.setSurveyMode = function(mode) {
+      surveyMode = mode;
+      document.getElementById('survey-btn-inapp').classList.toggle('active', mode === 'inapp');
+      document.getElementById('survey-btn-link').classList.toggle('active',  mode === 'link');
+      document.getElementById('survey-panel-inapp').classList.toggle('active', mode === 'inapp');
+      document.getElementById('survey-panel-link').classList.toggle('active',  mode === 'link');
+    };
+
+    // ── City "Other" reveal ───────────────────────────────────
+    document.getElementById('f-city').addEventListener('change', e => {
+      const wrap = document.getElementById('city-other-wrap');
+      wrap.style.display = e.target.value === 'other' ? 'block' : 'none';
+      if (e.target.value !== 'other') document.getElementById('f-city-other').value = '';
+    });
+
+    function getCityValue() {
+      const sel = document.getElementById('f-city').value;
+      if (sel === 'other') return document.getElementById('f-city-other').value.trim();
+      return sel;
+    }
+
+    // ── Default data ─────────────────────────────────────────
     const DEFAULT_MODULES = [
-      { id: 'three-circles',  label: '3 Circles Gospel',       desc: 'Full gospel presentation walkthrough',       on: true  },
-      { id: 'house-of-peace', label: 'House of Peace',         desc: 'Luke 10 POP search and door script',        on: true  },
-      { id: '411-tool',       label: '411 Discipleship Tool',  desc: '4 questions, Oikos map, WHEN goals',        on: true  },
-      { id: 'prayer-walking', label: 'Prayer Walking Guide',   desc: 'What to pray, practical tips',              on: true  },
-      { id: 'holy-spirit',    label: "Holy Spirit's Power",    desc: 'John 14:12, daily filling',                 on: true  },
-      { id: 'cultural',       label: 'Cultural Awareness',     desc: "Islam basics, bridge points, dos/don'ts",   on: false },
-      { id: 'prayer-guide',   label: '12-Day Prayer Guide',    desc: 'Daily prayer guide, auto-expands today',    on: true  },
+      { id: 'three-circles',  label: '3 Circles Gospel',       desc: 'Full gospel presentation walkthrough',     on: true  },
+      { id: 'house-of-peace', label: 'House of Peace',         desc: 'Luke 10 POP search and door script',      on: true  },
+      { id: '411-tool',       label: '411 Discipleship Tool',  desc: '4 questions, Oikos map, WHEN goals',      on: true  },
+      { id: 'prayer-walking', label: 'Prayer Walking Guide',   desc: 'What to pray, practical tips',            on: true  },
+      { id: 'holy-spirit',    label: "Holy Spirit's Power",    desc: 'John 14:12, daily filling',               on: true  },
+      { id: 'cultural',       label: 'Cultural Awareness',     desc: "Islam basics, bridge points, dos/don'ts", on: false },
+      { id: 'prayer-guide',   label: '12-Day Prayer Guide',    desc: 'Daily prayer guide, auto-expands today',  on: true  },
     ];
 
+    // FIX 3: "Decisions" → "Professions of Faith"
     const DEFAULT_TALLY = [
-      { id: 'gospel',    label: 'Gospel Shares',        on: true  },
-      { id: 'prayer',    label: 'Prayer Conversations', on: true  },
-      { id: 'pop',       label: 'Persons of Peace',     on: true  },
-      { id: 'decisions', label: 'Decisions',            on: true  },
-      { id: 'doors',     label: 'Doors Knocked',        on: false },
-      { id: 'bibles',    label: 'Bibles Given',         on: false },
-      { id: 'films',     label: 'Jesus Films Given',    on: false },
+      { id: 'gospel',    label: 'Gospel Shares',          on: true  },
+      { id: 'prayer',    label: 'Prayer Conversations',   on: true  },
+      { id: 'pop',       label: 'Persons of Peace',       on: true  },
+      { id: 'pof',       label: 'Professions of Faith',   on: true  },
+      { id: 'doors',     label: 'Doors Knocked',          on: false },
+      { id: 'bibles',    label: 'Bibles Given',           on: false },
+      { id: 'films',     label: 'Jesus Films Given',      on: false },
     ];
 
     // ── Wizard state ─────────────────────────────────────────
@@ -533,6 +592,7 @@
         recipients:        [{ name: '', email: '', primary: true }],
         newsletters:       [],
       };
+      surveyMode = 'inapp';
     }
 
     // ── Utilities ────────────────────────────────────────────
@@ -545,6 +605,7 @@
     }
 
     function isValidEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+    function isValidUrl(u)   { try { new URL(u); return true; } catch { return false; } }
 
     function formatDate(str) {
       if (!str) return '—';
@@ -557,31 +618,27 @@
       return WORDS[Math.floor(Math.random() * WORDS.length)] + String(new Date().getFullYear()).slice(2);
     }
 
-    // ── AUTH ─────────────────────────────────────────────────
-    const GOOGLE_ICON_SVG = `<svg class="google-icon" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>`;
+    // ── Auth ─────────────────────────────────────────────────
+    const GICON = `<svg class="google-icon" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>`;
 
     document.getElementById('btn-google-signin').addEventListener('click', async () => {
-      const btn    = document.getElementById('btn-google-signin');
+      const btn = document.getElementById('btn-google-signin');
       const status = document.getElementById('login-status');
-      btn.disabled = true;
-      btn.textContent = 'Signing in…';
-      status.className = 'status-msg';
+      btn.disabled = true; btn.textContent = 'Signing in…'; status.className = 'status-msg';
       try {
         const result = await signInWithPopup(auth, provider);
         if (!result.user.email.toLowerCase().endsWith('@' + ALLOWED_DOMAIN)) {
           await signOut(auth);
           status.textContent = `Access restricted to @${ALLOWED_DOMAIN}. You signed in as ${result.user.email}.`;
           status.className = 'status-msg error';
-          btn.disabled = false;
-          btn.innerHTML = GOOGLE_ICON_SVG + ' Sign in with Google';
+          btn.disabled = false; btn.innerHTML = GICON + ' Sign in with Google';
         }
       } catch (err) {
         if (err.code !== 'auth/popup-closed-by-user') {
           status.textContent = 'Sign-in failed. Please try again.';
           status.className = 'status-msg error';
         }
-        btn.disabled = false;
-        btn.innerHTML = GOOGLE_ICON_SVG + ' Sign in with Google';
+        btn.disabled = false; btn.innerHTML = GICON + ' Sign in with Google';
       }
     });
 
@@ -607,12 +664,11 @@
         document.getElementById('login-screen').style.display = 'block';
         document.getElementById('app').style.display = 'none';
         const btn = document.getElementById('btn-google-signin');
-        btn.disabled = false;
-        btn.innerHTML = GOOGLE_ICON_SVG + ' Sign in with Google';
+        btn.disabled = false; btn.innerHTML = GICON + ' Sign in with Google';
       }
     });
 
-    // ── DASHBOARD ────────────────────────────────────────────
+    // ── Dashboard ────────────────────────────────────────────
     async function showDashboard() {
       document.getElementById('screen-dashboard').style.display = 'block';
       document.getElementById('screen-wizard').style.display   = 'none';
@@ -645,8 +701,7 @@
           `).join('');
         }
       } catch (err) {
-        console.error(err);
-        showToast('Could not load weeks.', 'err');
+        console.error(err); showToast('Could not load weeks.', 'err');
       }
     }
 
@@ -654,22 +709,21 @@
     document.getElementById('btn-new-week-empty').addEventListener('click', startWizard);
     document.getElementById('btn-back-dashboard').addEventListener('click', showDashboard);
 
-    // ── WIZARD ───────────────────────────────────────────────
+    // ── Wizard ───────────────────────────────────────────────
     function startWizard() {
       resetWizardState();
       document.getElementById('f-label').value    = '';
       document.getElementById('f-city').value     = '';
-      document.getElementById('f-region').value   = '';
+      document.getElementById('f-city-other').value = '';
+      document.getElementById('city-other-wrap').style.display = 'none';
       document.getElementById('f-start').value    = '';
       document.getElementById('f-end').value      = '';
       document.getElementById('f-codeword').value = genCodeWord();
-      // Clear all errors
+      document.getElementById('f-survey-url').value = '';
       document.querySelectorAll('.field-error').forEach(el => el.style.display = 'none');
       document.querySelectorAll('.field input.invalid, .field select.invalid').forEach(el => el.classList.remove('invalid'));
-      renderModules();
-      renderTallyFields();
-      renderRecipients();
-      renderNewsletters();
+      setSurveyMode('inapp');
+      renderModules(); renderTallyFields(); renderRecipients(); renderNewsletters();
       document.getElementById('screen-dashboard').style.display = 'none';
       document.getElementById('screen-wizard').style.display   = 'block';
       goStep(1);
@@ -682,7 +736,6 @@
       e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
     });
 
-    // Step nav
     const STEP_TITLES = { 1:'Basics', 2:'Modules', 3:'Tally Fields', 4:'Follow-Up', 5:'Survey', 6:'Review' };
 
     function goStep(n) {
@@ -698,7 +751,6 @@
       window.scrollTo(0, 0);
     }
 
-    // Nav buttons
     document.getElementById('btn-step1-next').addEventListener('click', () => { if (validateStep1()) goStep(2); });
     document.getElementById('btn-step2-back').addEventListener('click', () => goStep(1));
     document.getElementById('btn-step2-next').addEventListener('click', () => goStep(3));
@@ -707,32 +759,51 @@
     document.getElementById('btn-step4-back').addEventListener('click', () => goStep(3));
     document.getElementById('btn-step4-next').addEventListener('click', () => { if (validateRecipients()) goStep(5); });
     document.getElementById('btn-step5-back').addEventListener('click', () => goStep(4));
-    document.getElementById('btn-step5-next').addEventListener('click', () => goStep(6));
+    document.getElementById('btn-step5-next').addEventListener('click', () => { if (validateSurvey()) goStep(6); });
     document.getElementById('btn-step6-back').addEventListener('click', () => goStep(5));
 
-    // ── Step 1 validation ────────────────────────────────────
+    // ── Validation ───────────────────────────────────────────
     function validateStep1() {
       const checks = [
         { id: 'f-label',    err: 'err-label',    test: v => v.trim().length > 0 },
-        { id: 'f-city',     err: 'err-city',     test: v => v.trim().length > 0 },
-        { id: 'f-region',   err: 'err-region',   test: v => v !== '' },
         { id: 'f-start',    err: 'err-start',    test: v => v !== '' },
         { id: 'f-end',      err: 'err-end',      test: v => { const s = document.getElementById('f-start').value; return v !== '' && (!s || v >= s); }},
         { id: 'f-codeword', err: 'err-codeword', test: v => /^[A-Z0-9]{4,12}$/.test(v) },
       ];
       let ok = true;
       checks.forEach(c => {
-        const el  = document.getElementById(c.id);
-        const err = document.getElementById(c.err);
-        const pass = c.test(el.value);
-        el.classList.toggle('invalid', !pass);
-        err.style.display = pass ? 'none' : 'block';
+        const el = document.getElementById(c.id); const err = document.getElementById(c.err);
+        const pass = c.test(el.value); el.classList.toggle('invalid', !pass); err.style.display = pass ? 'none' : 'block';
         if (!pass) ok = false;
       });
+      // City check separately (dropdown + optional text field)
+      const cityVal = getCityValue();
+      const cityEl  = document.getElementById('f-city');
+      const cityErr = document.getElementById('err-city');
+      const cityOk  = cityVal.length > 0;
+      cityEl.classList.toggle('invalid', !cityOk); cityErr.style.display = cityOk ? 'none' : 'block';
+      if (!cityOk) ok = false;
       return ok;
     }
 
-    // ── Step 2: Modules ──────────────────────────────────────
+    function validateRecipients() {
+      const valid = ws.recipients.some(r => r.email && isValidEmail(r.email));
+      document.getElementById('err-recipients').style.display = valid ? 'none' : 'block';
+      return valid;
+    }
+
+    function validateSurvey() {
+      if (surveyMode === 'link') {
+        const url = document.getElementById('f-survey-url').value.trim();
+        const valid = isValidUrl(url);
+        document.getElementById('f-survey-url').classList.toggle('invalid', !valid);
+        document.getElementById('err-survey-url').style.display = valid ? 'none' : 'block';
+        return valid;
+      }
+      return true;
+    }
+
+    // ── Modules ──────────────────────────────────────────────
     function renderModules() {
       const list = document.getElementById('modules-list');
       list.innerHTML = ws.modules.map((m, i) => `
@@ -746,29 +817,23 @@
       `).join('');
       list.querySelectorAll('.toggle-item').forEach(el => {
         el.addEventListener('click', () => {
-          const i = +el.dataset.idx;
-          ws.modules[i].on = !ws.modules[i].on;
-          el.classList.toggle('on', ws.modules[i].on);
+          const i = +el.dataset.idx; ws.modules[i].on = !ws.modules[i].on; el.classList.toggle('on', ws.modules[i].on);
         });
       });
     }
 
-    // ── Step 3: Tally ────────────────────────────────────────
+    // ── Tally ────────────────────────────────────────────────
     function renderTallyFields() {
       const list = document.getElementById('tally-list');
       list.innerHTML = ws.tally.map((t, i) => `
         <div class="toggle-item ${t.on ? 'on' : ''}" data-idx="${i}">
-          <div class="toggle-item-left">
-            <span class="toggle-item-name">${t.label}</span>
-          </div>
+          <div class="toggle-item-left"><span class="toggle-item-name">${t.label}</span></div>
           <div class="toggle-switch"></div>
         </div>
       `).join('');
       list.querySelectorAll('.toggle-item').forEach(el => {
         el.addEventListener('click', () => {
-          const i = +el.dataset.idx;
-          ws.tally[i].on = !ws.tally[i].on;
-          el.classList.toggle('on', ws.tally[i].on);
+          const i = +el.dataset.idx; ws.tally[i].on = !ws.tally[i].on; el.classList.toggle('on', ws.tally[i].on);
         });
       });
       renderCustomTallyFields();
@@ -782,12 +847,8 @@
           <button class="btn-remove" data-idx="${i}">✕</button>
         </div>
       `).join('');
-      c.querySelectorAll('.custom-tally-input').forEach(el => {
-        el.addEventListener('input', e => { ws.customTallyFields[+e.target.dataset.idx] = e.target.value; });
-      });
-      c.querySelectorAll('.btn-remove').forEach(el => {
-        el.addEventListener('click', e => { ws.customTallyFields.splice(+e.target.dataset.idx, 1); renderCustomTallyFields(); });
-      });
+      c.querySelectorAll('.custom-tally-input').forEach(el => el.addEventListener('input', e => { ws.customTallyFields[+e.target.dataset.idx] = e.target.value; }));
+      c.querySelectorAll('.btn-remove').forEach(el => el.addEventListener('click', e => { ws.customTallyFields.splice(+e.target.dataset.idx, 1); renderCustomTallyFields(); }));
     }
 
     document.getElementById('btn-add-custom-tally').addEventListener('click', () => {
@@ -796,7 +857,7 @@
       setTimeout(() => { const els = document.querySelectorAll('.custom-tally-input'); if (els.length) els[els.length-1].focus(); }, 50);
     });
 
-    // ── Step 4: Recipients ───────────────────────────────────
+    // ── Recipients ───────────────────────────────────────────
     function renderRecipients() {
       const list = document.getElementById('recipient-list');
       list.innerHTML = ws.recipients.map((r, i) => `
@@ -827,17 +888,11 @@
       setTimeout(() => { const els = document.querySelectorAll('.rec-name'); if (els.length) els[els.length-1].focus(); }, 50);
     });
 
-    function validateRecipients() {
-      const valid = ws.recipients.some(r => r.email && isValidEmail(r.email));
-      document.getElementById('err-recipients').style.display = valid ? 'none' : 'block';
-      return valid;
-    }
-
-    // ── Step 5: Newsletters ──────────────────────────────────
+    // ── Newsletters ──────────────────────────────────────────
     function renderNewsletters() {
       const c = document.getElementById('newsletter-list');
       if (ws.newsletters.length === 0) {
-        c.innerHTML = '<p style="font-size:13px;color:var(--text-soft);margin-bottom:12px;font-style:italic;">No options added yet — these are optional.</p>';
+        c.innerHTML = '<p style="font-size:13px;color:var(--text-soft);margin-bottom:12px;font-style:italic;">No options added yet.</p>';
         return;
       }
       c.innerHTML = ws.newsletters.map((n, i) => `
@@ -856,12 +911,11 @@
       setTimeout(() => { const els = document.querySelectorAll('.nl-name'); if (els.length) els[els.length-1].focus(); }, 50);
     });
 
-    // ── Step 6: Review ───────────────────────────────────────
+    // ── Review ───────────────────────────────────────────────
     function buildReview() {
       document.getElementById('review-codeword').textContent = document.getElementById('f-codeword').value;
       document.getElementById('review-label').textContent    = document.getElementById('f-label').value;
-      document.getElementById('review-city').textContent     = document.getElementById('f-city').value;
-      document.getElementById('review-region').textContent   = document.getElementById('f-region').value;
+      document.getElementById('review-city').textContent     = getCityValue();
       document.getElementById('review-dates').textContent    = `${formatDate(document.getElementById('f-start').value)} – ${formatDate(document.getElementById('f-end').value)}`;
 
       const activeMods = ws.modules.filter(m => m.on);
@@ -878,23 +932,31 @@
         `<span class="review-chip">${r.name || r.email}${r.primary ? ' ★' : ''}</span>`
       ).join('') || '<span style="font-size:13px;color:var(--text-soft)">None added</span>';
 
-      document.getElementById('review-newsletter').innerHTML = ws.newsletters.filter(n => n.name).map(n =>
-        `<span class="review-chip">${n.name}</span>`
-      ).join('') || '<span style="font-size:13px;color:var(--text-soft)">None added</span>';
+      const surveyReview = document.getElementById('review-survey');
+      if (surveyMode === 'inapp') {
+        const nl = ws.newsletters.filter(n => n.name);
+        surveyReview.innerHTML = `<span class="review-chip">In-App Survey</span> `
+          + (nl.length ? nl.map(n => `<span class="review-chip">${n.name}</span>`).join('') : '<span style="font-size:13px;color:var(--text-soft);margin-left:4px;">No newsletter options</span>');
+      } else {
+        const url = document.getElementById('f-survey-url').value;
+        surveyReview.innerHTML = `<span class="review-chip">External Link</span> <span style="font-size:12px;color:var(--text-soft);word-break:break-all;">${url}</span>`;
+      }
     }
 
     // ── Launch → Firestore ───────────────────────────────────
     document.getElementById('btn-launch').addEventListener('click', async () => {
       if (!currentUser) return;
       const btn = document.getElementById('btn-launch');
-      btn.disabled = true;
-      btn.textContent = 'Saving…';
+      btn.disabled = true; btn.textContent = 'Saving…';
+
+      const surveyConfig = surveyMode === 'inapp'
+        ? { type: 'inapp', newsletterOptions: ws.newsletters.filter(n => n.name.trim()) }
+        : { type: 'link',  url: document.getElementById('f-survey-url').value.trim() };
 
       const weekData = {
         codeWord:  document.getElementById('f-codeword').value.trim().toUpperCase(),
         label:     document.getElementById('f-label').value.trim(),
-        city:      document.getElementById('f-city').value.trim(),
-        region:    document.getElementById('f-region').value,
+        city:      getCityValue(),
         startDate: document.getElementById('f-start').value,
         endDate:   document.getElementById('f-end').value,
         status:    'active',
@@ -906,7 +968,7 @@
           ...ws.customTallyFields.filter(f => f.trim()).map((f, i) => ({ id: 'custom_' + i, label: f.trim(), active: true, custom: true })),
         ],
         followUpRecipients: ws.recipients.filter(r => r.email && isValidEmail(r.email)),
-        newsletterOptions:  ws.newsletters.filter(n => n.name.trim()),
+        survey: surveyConfig,
       };
 
       try {
@@ -914,10 +976,8 @@
         showToast('Week launched! 🚀', 'success');
         setTimeout(() => showDashboard(), 900);
       } catch (err) {
-        console.error(err);
-        showToast('Save failed — check console.', 'err');
-        btn.disabled = false;
-        btn.textContent = '🚀 Launch Week';
+        console.error(err); showToast('Save failed — check console.', 'err');
+        btn.disabled = false; btn.textContent = '🚀 Launch Week';
       }
     });
 
