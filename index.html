@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GG Sifting Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Libre+Baskerville:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --indigo:      #1B456A;
+      --blue-jeans:  #53B8F3;
+      --orange:      #F38E53;
+      --bright-gray: #ECF1EE;
+      --white:       #ffffff;
+      --error:       #d93025;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Montserrat', sans-serif;
+      background: var(--indigo);
+      overflow: hidden;
+    }
+
+    /* ── Background texture ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 110% 0%, rgba(83,184,243,0.18) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 80% at -10% 100%, rgba(243,142,83,0.12) 0%, transparent 55%);
+      pointer-events: none;
+    }
+
+    /* ── City skyline SVG strip at bottom ── */
+    .skyline {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 120px;
+      opacity: 0.07;
+      pointer-events: none;
+    }
+
+    /* ── Center card ── */
+    .card-wrap {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 20px;
+      padding: 48px 40px 40px;
+      width: 100%;
+      max-width: 420px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 24px 64px rgba(0,0,0,0.35);
+      animation: cardIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Logo / wordmark ── */
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .logo-mark {
+      width: 44px;
+      height: 44px;
+      background: var(--blue-jeans);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .logo-mark span {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 18px;
+      color: var(--white);
+      letter-spacing: -0.5px;
+    }
+
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .logo-text .org {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--blue-jeans);
+    }
+
+    .logo-text .app {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: -0.2px;
+    }
+
+    /* ── Heading ── */
+    .headline {
+      margin-bottom: 8px;
+    }
+
+    .headline h1 {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--white);
+      line-height: 1.15;
+      letter-spacing: -0.5px;
+    }
+
+    .headline h1 span {
+      color: var(--orange);
+    }
+
+    .subhead {
+      font-family: 'Libre Baskerville', serif;
+      font-style: italic;
+      font-size: 14px;
+      color: rgba(236,241,238,0.6);
+      margin-bottom: 36px;
+      line-height: 1.5;
+    }
+
+    /* ── Google button ── */
+    .btn-google {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 14px 20px;
+      background: var(--white);
+      border: none;
+      border-radius: 12px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: #3c4043;
+      cursor: pointer;
+      transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    }
+
+    .btn-google:hover {
+      background: #f8f9fa;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      transform: translateY(-1px);
+    }
+
+    .btn-google:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    .btn-google:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .google-icon {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    /* ── Status / error messages ── */
+    .status {
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.4;
+      display: none;
+    }
+
+    .status.error {
+      display: block;
+      background: rgba(217,48,37,0.15);
+      border: 1px solid rgba(217,48,37,0.35);
+      color: #ff9a94;
+    }
+
+    .status.info {
+      display: block;
+      background: rgba(83,184,243,0.12);
+      border: 1px solid rgba(83,184,243,0.25);
+      color: var(--blue-jeans);
+    }
+
+    /* ── Divider ── */
+    .divider {
+      margin: 28px 0 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.10);
+    }
+
+    .divider span {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(236,241,238,0.35);
+    }
+
+    /* ── Access note ── */
+    .access-note {
+      font-size: 12px;
+      color: rgba(236,241,238,0.4);
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .access-note strong {
+      color: rgba(236,241,238,0.65);
+      font-weight: 600;
+    }
+
+    /* ══════════════════════════════════
+       DASHBOARD (shown after login)
+    ══════════════════════════════════ */
+    #app {
+      display: none;
+      min-height: 100vh;
+      flex-direction: column;
+      background: var(--bright-gray);
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    /* Top nav bar */
+    .topbar {
+      background: var(--indigo);
+      padding: 0 24px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .topbar-logo {
+      width: 32px;
+      height: 32px;
+      background: var(--blue-jeans);
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .topbar-logo span {
+      font-weight: 800;
+      font-size: 13px;
+      color: white;
+    }
+
+    .topbar-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: white;
+      letter-spacing: -0.2px;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.10);
+      border-radius: 20px;
+      padding: 5px 12px 5px 6px;
+    }
+
+    .user-avatar {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--blue-jeans);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: white;
+      overflow: hidden;
+    }
+
+    .user-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .user-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.85);
+    }
+
+    .btn-signout {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-signout:hover {
+      background: rgba(255,255,255,0.14);
+      color: white;
+    }
+
+    /* Dashboard body */
+    .dash-body {
+      padding: 32px 24px;
+      max-width: 760px;
+      margin: 0 auto;
+      width: 100%;
+      animation: cardIn 0.4s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    .dash-welcome {
+      margin-bottom: 32px;
+    }
+
+    .dash-welcome h2 {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--indigo);
+      letter-spacing: -0.4px;
+      margin-bottom: 4px;
+    }
+
+    .dash-welcome p {
+      font-family: 'Libre Baskerville', serif;
+      font-style: italic;
+      font-size: 14px;
+      color: #6b7a8d;
+    }
+
+    /* Status card */
+    .status-card {
+      background: white;
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 2px 12px rgba(27,69,106,0.08);
+      border: 1px solid rgba(27,69,106,0.07);
+      margin-bottom: 20px;
+    }
+
+    .status-card-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--blue-jeans);
+      margin-bottom: 10px;
+    }
+
+    .status-card-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--indigo);
+      margin-bottom: 6px;
+    }
+
+    .status-card-body {
+      font-size: 14px;
+      color: #6b7a8d;
+      line-height: 1.6;
+    }
+
+    .build-list {
+      list-style: none;
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .build-list li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #4a5568;
+    }
+
+    .build-list li .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .dot.done   { background: #22c55e; }
+    .dot.active { background: var(--orange); }
+    .dot.next   { background: #cbd5e1; }
+
+    /* Pill badge */
+    .badge {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .badge.success {
+      background: rgba(34,197,94,0.12);
+      color: #16a34a;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══ LOGIN SCREEN ══ -->
+  <div id="login-screen">
+    <div class="card-wrap">
+      <div class="card">
+
+        <div class="logo">
+          <div class="logo-mark"><span>GG</span></div>
+          <div class="logo-text">
+            <span class="org">Global Gates</span>
+            <span class="app">Sifting Admin</span>
+          </div>
+        </div>
+
+        <div class="headline">
+          <h1>Welcome<span>.</span></h1>
+        </div>
+        <p class="subhead">Regional leader portal for configuring and managing Sifting Weeks.</p>
+
+        <button class="btn-google" id="btn-google-signin">
+          <!-- Google "G" icon -->
+          <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Sign in with Google
+        </button>
+
+        <div class="status" id="status-msg"></div>
+
+        <div class="divider"><span>Access</span></div>
+
+        <p class="access-note">
+          Restricted to <strong>@globalgates.info</strong> accounts.<br/>
+          Field team members do not need an account.
+        </p>
+
+      </div>
+    </div>
+
+    <!-- NYC skyline silhouette -->
+    <svg class="skyline" viewBox="0 0 1440 120" preserveAspectRatio="xMidYMax meet" fill="var(--bright-gray)" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,120 L0,80 L20,80 L20,60 L30,60 L30,40 L40,40 L40,60 L50,60 L50,80 L60,80 L60,50 L70,50 L70,30 L75,30 L75,20 L80,20 L80,30 L85,30 L85,50 L90,50 L90,80 L100,80 L100,60 L110,60 L110,40 L120,40 L120,60 L130,60 L130,80 L140,80 L140,55 L150,55 L150,35 L155,35 L155,25 L160,25 L160,35 L165,35 L165,55 L175,55 L175,80 L190,80 L190,45 L200,45 L200,25 L210,25 L210,45 L220,45 L220,80 L230,80 L230,60 L240,60 L240,40 L245,40 L245,30 L250,30 L250,20 L255,20 L255,30 L260,30 L260,40 L265,40 L265,60 L275,60 L275,80 L290,80 L290,55 L300,55 L300,70 L310,70 L310,80 L320,80 L320,50 L330,50 L330,30 L335,30 L335,15 L340,15 L340,30 L345,30 L345,50 L355,50 L355,80 L370,80 L370,60 L380,60 L380,45 L385,45 L385,35 L390,35 L390,45 L395,45 L395,60 L410,60 L410,80 L425,80 L425,55 L435,55 L435,65 L445,65 L445,80 L460,80 L460,45 L470,45 L470,25 L475,25 L475,10 L480,10 L480,25 L485,25 L485,45 L495,45 L495,80 L510,80 L510,60 L520,60 L520,40 L530,40 L530,60 L540,60 L540,80 L555,80 L555,50 L565,50 L565,70 L575,70 L575,80 L590,80 L590,45 L600,45 L600,30 L605,30 L605,20 L610,20 L610,30 L615,30 L615,45 L625,45 L625,80 L640,80 L640,55 L650,55 L650,40 L660,40 L660,55 L670,55 L670,80 L685,80 L685,60 L695,60 L695,75 L705,75 L705,80 L720,80 L720,50 L730,50 L730,35 L735,35 L735,22 L740,22 L740,35 L745,35 L745,50 L755,50 L755,80 L770,80 L770,60 L780,60 L780,45 L785,45 L785,35 L790,35 L790,45 L795,45 L795,60 L805,60 L805,80 L820,80 L820,55 L830,55 L830,70 L840,70 L840,80 L855,80 L855,45 L865,45 L865,30 L870,30 L870,18 L875,18 L875,30 L880,30 L880,45 L890,45 L890,80 L905,80 L905,60 L915,60 L915,40 L925,40 L925,60 L935,60 L935,80 L950,80 L950,55 L960,55 L960,65 L970,65 L970,80 L985,80 L985,50 L995,50 L995,32 L1000,32 L1000,20 L1005,20 L1005,32 L1010,32 L1010,50 L1020,50 L1020,80 L1035,80 L1035,60 L1045,60 L1045,45 L1055,45 L1055,60 L1065,60 L1065,80 L1080,80 L1080,55 L1090,55 L1090,70 L1100,70 L1100,80 L1115,80 L1115,45 L1125,45 L1125,28 L1130,28 L1130,16 L1135,16 L1135,28 L1140,28 L1140,45 L1150,45 L1150,80 L1165,80 L1165,60 L1175,60 L1175,42 L1185,42 L1185,60 L1195,60 L1195,80 L1210,80 L1210,55 L1220,55 L1220,38 L1225,38 L1225,25 L1230,25 L1230,38 L1235,38 L1235,55 L1245,55 L1245,80 L1260,80 L1260,60 L1270,60 L1270,75 L1280,75 L1280,80 L1295,80 L1295,50 L1305,50 L1305,35 L1310,35 L1310,22 L1315,22 L1315,35 L1320,35 L1320,50 L1330,50 L1330,80 L1345,80 L1345,60 L1355,60 L1355,45 L1365,45 L1365,60 L1375,60 L1375,80 L1390,80 L1390,70 L1400,70 L1400,80 L1440,80 L1440,120 Z"/>
+    </svg>
+  </div>
+
+  <!-- ══ DASHBOARD (shown after successful login) ══ -->
+  <div id="app">
+    <nav class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-logo"><span>GG</span></div>
+        <span class="topbar-title">Sifting Admin</span>
+      </div>
+      <div class="topbar-right">
+        <div class="user-pill">
+          <div class="user-avatar" id="user-avatar-wrap">
+            <span id="user-initials">?</span>
+          </div>
+          <span class="user-name" id="user-display-name">—</span>
+        </div>
+        <button class="btn-signout" id="btn-signout">Sign out</button>
+      </div>
+    </nav>
+
+    <div class="dash-body">
+      <div class="dash-welcome">
+        <h2 id="dash-greeting">Welcome back.</h2>
+        <p>Here's where things stand with the admin build.</p>
+      </div>
+
+      <div class="status-card">
+        <div class="status-card-label">Firebase Auth</div>
+        <div class="status-card-title">
+          Login working <span class="badge success">✓ Live</span>
+        </div>
+        <div class="status-card-body">
+          You're signed in with a verified @globalgates.info account. Firebase Auth is connected and the domain restriction is active.
+        </div>
+      </div>
+
+      <div class="status-card">
+        <div class="status-card-label">Build Sequence</div>
+        <div class="status-card-title">What's next</div>
+        <div class="status-card-body">
+          Admin backend build in progress. Sessions are focused — NYC pilot target is end of April.
+          <ul class="build-list">
+            <li><span class="dot done"></span> PWA v1.0 field app — live</li>
+            <li><span class="dot done"></span> Firebase project + Auth — done this session</li>
+            <li><span class="dot active"></span> Week creation wizard (5 steps) — next</li>
+            <li><span class="dot next"></span> Field app config pull from Firestore</li>
+            <li><span class="dot next"></span> Contacts → Firestore → Google Sheets</li>
+            <li><span class="dot next"></span> Admin dashboard — live tallies + contact list</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ FIREBASE SDK (CDN — no build tools needed) ══ -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth,
+      GoogleAuthProvider,
+      signInWithPopup,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    // ── Your Firebase config ──
+    const firebaseConfig = {
+      apiKey: "AIzaSyC9fQikLwGNo7WYQ-8Ch1VA9v7HrDzXH3I",
+      authDomain: "gg-sifting-admin.firebaseapp.com",
+      projectId: "gg-sifting-admin",
+      storageBucket: "gg-sifting-admin.firebasestorage.app",
+      messagingSenderId: "440903094020",
+      appId: "1:440903094020:web:26c982cb7e443c1bac4a51"
+    };
+
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    // Force account picker every time (useful for orgs with multiple Google accounts)
+    provider.setCustomParameters({ prompt: 'select_account' });
+
+    // ── DOM refs ──
+    const loginScreen    = document.getElementById('login-screen');
+    const appScreen      = document.getElementById('app');
+    const btnSignIn      = document.getElementById('btn-google-signin');
+    const btnSignOut     = document.getElementById('btn-signout');
+    const statusMsg      = document.getElementById('status-msg');
+    const userDisplayName = document.getElementById('user-display-name');
+    const userInitials   = document.getElementById('user-initials');
+    const userAvatarWrap = document.getElementById('user-avatar-wrap');
+    const dashGreeting   = document.getElementById('dash-greeting');
+
+    // ── Domain check — only @globalgates.info ──
+    const ALLOWED_DOMAIN = 'globalgates.info';
+
+    function isAllowedEmail(email) {
+      return email && email.toLowerCase().endsWith('@' + ALLOWED_DOMAIN);
+    }
+
+    // ── Show status message ──
+    function showStatus(msg, type = 'error') {
+      statusMsg.textContent = msg;
+      statusMsg.className = 'status ' + type;
+    }
+
+    function clearStatus() {
+      statusMsg.className = 'status';
+      statusMsg.textContent = '';
+    }
+
+    // ── Update UI for signed-in user ──
+    function showDashboard(user) {
+      // Populate top bar
+      const name = user.displayName || user.email.split('@')[0];
+      userDisplayName.textContent = name;
+
+      // Initials fallback if no photo
+      const parts = name.split(' ');
+      const initials = parts.length >= 2
+        ? parts[0][0] + parts[parts.length - 1][0]
+        : name.slice(0, 2);
+      userInitials.textContent = initials.toUpperCase();
+
+      // Use Google profile photo if available
+      if (user.photoURL) {
+        userAvatarWrap.innerHTML = `<img src="${user.photoURL}" alt="${name}" />`;
+      }
+
+      // Greeting
+      const firstName = parts[0];
+      dashGreeting.textContent = `Welcome back, ${firstName}.`;
+
+      // Swap screens
+      loginScreen.style.display = 'none';
+      appScreen.style.display   = 'flex';
+    }
+
+    function showLogin() {
+      loginScreen.style.display = 'block';
+      appScreen.style.display   = 'none';
+    }
+
+    // ── Auth state listener — runs on every page load ──
+    onAuthStateChanged(auth, (user) => {
+      if (user && isAllowedEmail(user.email)) {
+        showDashboard(user);
+      } else {
+        if (user) {
+          // Signed in but wrong domain — sign them back out silently
+          signOut(auth);
+        }
+        showLogin();
+      }
+    });
+
+    // ── Sign In ──
+    btnSignIn.addEventListener('click', async () => {
+      clearStatus();
+      btnSignIn.disabled = true;
+      btnSignIn.textContent = 'Signing in…';
+
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+
+        if (!isAllowedEmail(user.email)) {
+          await signOut(auth);
+          showStatus(`Access restricted to @${ALLOWED_DOMAIN} accounts. You signed in as ${user.email}.`);
+          btnSignIn.disabled = false;
+          btnSignIn.innerHTML = `<svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Sign in with Google`;
+          return;
+        }
+
+        // Success — onAuthStateChanged will handle the redirect
+      } catch (err) {
+        if (err.code !== 'auth/popup-closed-by-user') {
+          showStatus('Sign-in failed. Please try again.');
+          console.error(err);
+        }
+        btnSignIn.disabled = false;
+        btnSignIn.innerHTML = `<svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Sign in with Google`;
+      }
+    });
+
+    // ── Sign Out ──
+    btnSignOut.addEventListener('click', () => signOut(auth));
+  </script>
+</body>
+</html>
