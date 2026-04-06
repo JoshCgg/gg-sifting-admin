@@ -15,469 +15,233 @@
       --bright-gray: #ECF1EE;
       --white:       #ffffff;
       --error:       #d93025;
+      --success:     #22c55e;
+      --text-main:   #1a2b3c;
+      --text-soft:   #6b7a8d;
+      --border:      rgba(27,69,106,0.12);
     }
 
-    html, body {
-      height: 100%;
-      font-family: 'Montserrat', sans-serif;
-      background: var(--indigo);
-      overflow: hidden;
-    }
+    html, body { height: 100%; font-family: 'Montserrat', sans-serif; background: var(--indigo); }
 
-    /* ── Background texture ── */
+    /* LOGIN BG */
     body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
       background:
         radial-gradient(ellipse 80% 60% at 110% 0%, rgba(83,184,243,0.18) 0%, transparent 60%),
         radial-gradient(ellipse 60% 80% at -10% 100%, rgba(243,142,83,0.12) 0%, transparent 55%);
-      pointer-events: none;
     }
 
-    /* ── City skyline SVG strip at bottom ── */
     .skyline {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 120px;
-      opacity: 0.07;
-      pointer-events: none;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      height: 120px; opacity: 0.07; pointer-events: none; z-index: 0;
     }
 
-    /* ── Center card ── */
     .card-wrap {
-      position: relative;
-      z-index: 1;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
+      position: relative; z-index: 1; min-height: 100vh;
+      display: flex; align-items: center; justify-content: center; padding: 24px;
     }
 
-    .card {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.10);
-      border-radius: 20px;
-      padding: 48px 40px 40px;
-      width: 100%;
-      max-width: 420px;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+    .login-card {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 20px; padding: 48px 40px 40px; width: 100%; max-width: 420px;
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
       box-shadow: 0 24px 64px rgba(0,0,0,0.35);
-      animation: cardIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
+      animation: fadeUp 0.5s cubic-bezier(0.22,1,0.36,1) both;
     }
 
-    @keyframes cardIn {
+    @keyframes fadeUp {
       from { opacity: 0; transform: translateY(24px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* ── Logo / wordmark ── */
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 32px;
-    }
+    .logo { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; }
+    .logo-mark { width: 44px; height: 44px; background: var(--blue-jeans); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .logo-mark span { font-weight: 800; font-size: 18px; color: white; }
+    .logo-text { display: flex; flex-direction: column; gap: 1px; }
+    .logo-text .org { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--blue-jeans); }
+    .logo-text .app { font-size: 17px; font-weight: 700; color: white; }
 
-    .logo-mark {
-      width: 44px;
-      height: 44px;
-      background: var(--blue-jeans);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
+    .login-card h1 { font-size: 26px; font-weight: 800; color: white; margin-bottom: 6px; }
+    .login-card h1 span { color: var(--orange); }
+    .login-subhead { font-family: 'Libre Baskerville', serif; font-style: italic; font-size: 14px; color: rgba(236,241,238,0.6); margin-bottom: 36px; line-height: 1.5; }
 
-    .logo-mark span {
-      font-family: 'Montserrat', sans-serif;
-      font-weight: 800;
-      font-size: 18px;
-      color: var(--white);
-      letter-spacing: -0.5px;
-    }
-
-    .logo-text {
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-    }
-
-    .logo-text .org {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--blue-jeans);
-    }
-
-    .logo-text .app {
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--white);
-      letter-spacing: -0.2px;
-    }
-
-    /* ── Heading ── */
-    .headline {
-      margin-bottom: 8px;
-    }
-
-    .headline h1 {
-      font-size: 26px;
-      font-weight: 800;
-      color: var(--white);
-      line-height: 1.15;
-      letter-spacing: -0.5px;
-    }
-
-    .headline h1 span {
-      color: var(--orange);
-    }
-
-    .subhead {
-      font-family: 'Libre Baskerville', serif;
-      font-style: italic;
-      font-size: 14px;
-      color: rgba(236,241,238,0.6);
-      margin-bottom: 36px;
-      line-height: 1.5;
-    }
-
-    /* ── Google button ── */
     .btn-google {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      padding: 14px 20px;
-      background: var(--white);
-      border: none;
-      border-radius: 12px;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 15px;
-      font-weight: 600;
-      color: #3c4043;
-      cursor: pointer;
-      transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px;
+      padding: 14px 20px; background: white; border: none; border-radius: 12px;
+      font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 600; color: #3c4043;
+      cursor: pointer; transition: all 0.15s; box-shadow: 0 2px 8px rgba(0,0,0,0.25);
     }
+    .btn-google:hover { background: #f8f9fa; box-shadow: 0 4px 16px rgba(0,0,0,0.3); transform: translateY(-1px); }
+    .btn-google:active { transform: translateY(0); }
+    .btn-google:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .google-icon { width: 20px; height: 20px; flex-shrink: 0; }
 
-    .btn-google:hover {
-      background: #f8f9fa;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-      transform: translateY(-1px);
-    }
+    .status-msg { margin-top: 16px; padding: 12px 14px; border-radius: 10px; font-size: 13px; font-weight: 500; line-height: 1.4; display: none; }
+    .status-msg.error { display: block; background: rgba(217,48,37,0.15); border: 1px solid rgba(217,48,37,0.35); color: #ff9a94; }
+    .status-msg.info  { display: block; background: rgba(83,184,243,0.12); border: 1px solid rgba(83,184,243,0.25); color: var(--blue-jeans); }
 
-    .btn-google:active {
-      transform: translateY(0);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    }
+    .login-divider { margin: 28px 0 20px; display: flex; align-items: center; gap: 12px; }
+    .login-divider::before, .login-divider::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.10); }
+    .login-divider span { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(236,241,238,0.35); }
+    .access-note { font-size: 12px; color: rgba(236,241,238,0.4); text-align: center; line-height: 1.5; }
+    .access-note strong { color: rgba(236,241,238,0.65); font-weight: 600; }
 
-    .btn-google:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
+    /* APP SHELL */
+    #app { display: none; min-height: 100vh; flex-direction: column; background: var(--bright-gray); }
 
-    .google-icon {
-      width: 20px;
-      height: 20px;
-      flex-shrink: 0;
-    }
-
-    /* ── Status / error messages ── */
-    .status {
-      margin-top: 16px;
-      padding: 12px 14px;
-      border-radius: 10px;
-      font-size: 13px;
-      font-weight: 500;
-      line-height: 1.4;
-      display: none;
-    }
-
-    .status.error {
-      display: block;
-      background: rgba(217,48,37,0.15);
-      border: 1px solid rgba(217,48,37,0.35);
-      color: #ff9a94;
-    }
-
-    .status.info {
-      display: block;
-      background: rgba(83,184,243,0.12);
-      border: 1px solid rgba(83,184,243,0.25);
-      color: var(--blue-jeans);
-    }
-
-    /* ── Divider ── */
-    .divider {
-      margin: 28px 0 20px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .divider::before, .divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: rgba(255,255,255,0.10);
-    }
-
-    .divider span {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: rgba(236,241,238,0.35);
-    }
-
-    /* ── Access note ── */
-    .access-note {
-      font-size: 12px;
-      color: rgba(236,241,238,0.4);
-      text-align: center;
-      line-height: 1.5;
-    }
-
-    .access-note strong {
-      color: rgba(236,241,238,0.65);
-      font-weight: 600;
-    }
-
-    /* ══════════════════════════════════
-       DASHBOARD (shown after login)
-    ══════════════════════════════════ */
-    #app {
-      display: none;
-      min-height: 100vh;
-      flex-direction: column;
-      background: var(--bright-gray);
-      font-family: 'Montserrat', sans-serif;
-    }
-
-    /* Top nav bar */
     .topbar {
-      background: var(--indigo);
-      padding: 0 24px;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
-      position: sticky;
-      top: 0;
-      z-index: 10;
+      background: var(--indigo); padding: 0 24px; height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15); position: sticky; top: 0; z-index: 100;
     }
+    .topbar-left { display: flex; align-items: center; gap: 10px; }
+    .topbar-logo { width: 32px; height: 32px; background: var(--blue-jeans); border-radius: 7px; display: flex; align-items: center; justify-content: center; }
+    .topbar-logo span { font-weight: 800; font-size: 13px; color: white; }
+    .topbar-title { font-size: 15px; font-weight: 700; color: white; }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+    .user-pill { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.10); border-radius: 20px; padding: 5px 12px 5px 6px; }
+    .user-avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--blue-jeans); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: white; overflow: hidden; }
+    .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .user-name { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.85); }
+    .btn-signout { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 6px 12px; font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.7); cursor: pointer; transition: background 0.15s; }
+    .btn-signout:hover { background: rgba(255,255,255,0.14); color: white; }
 
-    .topbar-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    /* DASHBOARD */
+    #screen-dashboard { padding: 32px 24px; max-width: 800px; margin: 0 auto; width: 100%; animation: fadeUp 0.4s cubic-bezier(0.22,1,0.36,1) both; }
+
+    .dash-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 16px; }
+    .dash-header h2 { font-size: 22px; font-weight: 800; color: var(--indigo); margin-bottom: 4px; }
+    .dash-header p { font-family: 'Libre Baskerville', serif; font-style: italic; font-size: 14px; color: var(--text-soft); }
+
+    .btn-primary {
+      background: var(--indigo); color: white; border: none; border-radius: 10px;
+      padding: 12px 20px; font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 700;
+      cursor: pointer; transition: all 0.15s; white-space: nowrap;
+      display: inline-flex; align-items: center; gap: 8px;
     }
+    .btn-primary:hover { background: #163a5a; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(27,69,106,0.3); }
 
-    .topbar-logo {
-      width: 32px;
-      height: 32px;
-      background: var(--blue-jeans);
-      border-radius: 7px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .weeks-empty { background: white; border-radius: 14px; padding: 48px 32px; text-align: center; border: 2px dashed var(--border); }
+    .weeks-empty .empty-icon { font-size: 36px; margin-bottom: 12px; }
+    .weeks-empty h3 { font-size: 16px; font-weight: 700; color: var(--indigo); margin-bottom: 6px; }
+    .weeks-empty p { font-size: 13px; color: var(--text-soft); line-height: 1.5; margin-bottom: 20px; }
+
+    .weeks-grid { display: flex; flex-direction: column; gap: 12px; }
+    .week-card { background: white; border-radius: 14px; padding: 20px 24px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; box-shadow: 0 2px 8px rgba(27,69,106,0.05); transition: box-shadow 0.15s; }
+    .week-card:hover { box-shadow: 0 4px 16px rgba(27,69,106,0.10); }
+    .week-card-name { font-size: 16px; font-weight: 700; color: var(--indigo); }
+    .week-card-meta { font-size: 12px; color: var(--text-soft); display: flex; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
+    .week-card-code { font-family: monospace; background: var(--bright-gray); padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: 700; color: var(--indigo); letter-spacing: 0.08em; }
+    .status-badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-left: 8px; }
+    .status-badge.draft  { background: rgba(107,122,141,0.12); color: #6b7a8d; }
+    .status-badge.active { background: rgba(34,197,94,0.12); color: #16a34a; }
+    .status-badge.closed { background: rgba(217,48,37,0.10); color: #b91c1c; }
+
+    /* WIZARD */
+    #screen-wizard { display: none; padding: 24px; max-width: 680px; margin: 0 auto; width: 100%; animation: fadeUp 0.35s cubic-bezier(0.22,1,0.36,1) both; }
+
+    .wizard-progress { margin-bottom: 28px; }
+    .progress-steps { display: flex; gap: 4px; margin-bottom: 10px; }
+    .progress-step { flex: 1; height: 4px; border-radius: 2px; background: var(--border); transition: background 0.3s; }
+    .progress-step.done    { background: var(--blue-jeans); }
+    .progress-step.current { background: var(--orange); }
+    .progress-label { font-size: 12px; font-weight: 600; color: var(--text-soft); }
+    .progress-label span { color: var(--indigo); font-weight: 700; }
+
+    .wizard-step { display: none; }
+    .wizard-step.active { display: block; }
+
+    .step-card { background: white; border-radius: 16px; padding: 28px; border: 1px solid var(--border); box-shadow: 0 2px 12px rgba(27,69,106,0.06); margin-bottom: 16px; }
+    .step-title { font-size: 20px; font-weight: 800; color: var(--indigo); margin-bottom: 4px; }
+    .step-subtitle { font-family: 'Libre Baskerville', serif; font-style: italic; font-size: 13px; color: var(--text-soft); margin-bottom: 24px; line-height: 1.5; }
+
+    .field { margin-bottom: 20px; }
+    .field:last-child { margin-bottom: 0; }
+    .field label { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--indigo); margin-bottom: 7px; }
+
+    .field input[type="text"],
+    .field input[type="date"],
+    .field input[type="email"],
+    .field select,
+    .field textarea {
+      width: 100%; padding: 11px 14px; border: 1.5px solid var(--border);
+      border-radius: 10px; font-family: 'Montserrat', sans-serif; font-size: 14px;
+      color: var(--text-main); background: white; transition: border-color 0.15s;
+      -webkit-appearance: none; appearance: none;
     }
+    .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--blue-jeans); box-shadow: 0 0 0 3px rgba(83,184,243,0.15); }
+    .field input.invalid, .field select.invalid { border-color: var(--error); }
 
-    .topbar-logo span {
-      font-weight: 800;
-      font-size: 13px;
-      color: white;
-    }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 500px) { .field-row { grid-template-columns: 1fr; } }
 
-    .topbar-title {
-      font-size: 15px;
-      font-weight: 700;
-      color: white;
-      letter-spacing: -0.2px;
-    }
+    .code-word-wrap { display: flex; gap: 10px; }
+    .code-word-wrap input { flex: 1; font-family: monospace; font-size: 16px; font-weight: 700; letter-spacing: 0.1em; }
+    .btn-regen { background: var(--bright-gray); border: 1.5px solid var(--border); border-radius: 10px; padding: 11px 14px; font-size: 18px; cursor: pointer; transition: background 0.15s; }
+    .btn-regen:hover { background: #dce3e0; }
 
-    .topbar-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
+    .field-hint { font-size: 12px; color: var(--text-soft); margin-top: 5px; line-height: 1.4; }
+    .field-error { font-size: 12px; color: var(--error); margin-top: 5px; font-weight: 600; display: none; }
 
-    .user-pill {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(255,255,255,0.10);
-      border-radius: 20px;
-      padding: 5px 12px 5px 6px;
-    }
+    .toggle-list { display: flex; flex-direction: column; gap: 10px; }
+    .toggle-item { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px; border-radius: 10px; border: 1.5px solid var(--border); cursor: pointer; transition: all 0.15s; user-select: none; gap: 12px; }
+    .toggle-item:hover { border-color: var(--blue-jeans); background: rgba(83,184,243,0.04); }
+    .toggle-item.on { border-color: var(--blue-jeans); background: rgba(83,184,243,0.07); }
+    .toggle-item-left { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+    .toggle-item-name { font-size: 14px; font-weight: 600; color: var(--text-main); }
+    .toggle-item-desc { font-size: 12px; color: var(--text-soft); }
+    .toggle-switch { width: 40px; height: 22px; border-radius: 11px; background: #d1d5db; position: relative; flex-shrink: 0; transition: background 0.2s; }
+    .toggle-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: white; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    .toggle-item.on .toggle-switch { background: var(--blue-jeans); }
+    .toggle-item.on .toggle-switch::after { transform: translateX(18px); }
 
-    .user-avatar {
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      background: var(--blue-jeans);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      font-weight: 700;
-      color: white;
-      overflow: hidden;
-    }
+    .recipient-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+    .recipient-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items: center; padding: 12px 14px; background: var(--bright-gray); border-radius: 10px; border: 1.5px solid var(--border); }
+    @media (max-width: 560px) { .recipient-row { grid-template-columns: 1fr; } }
+    .recipient-row input { padding: 8px 10px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'Montserrat', sans-serif; font-size: 13px; background: white; width: 100%; }
+    .recipient-row input:focus { outline: none; border-color: var(--blue-jeans); }
+    .recipient-primary { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--text-soft); white-space: nowrap; cursor: pointer; }
+    .recipient-primary input[type="radio"] { accent-color: var(--orange); }
+    .btn-remove { background: none; border: none; color: #94a3b8; font-size: 18px; cursor: pointer; padding: 4px; line-height: 1; transition: color 0.15s; }
+    .btn-remove:hover { color: var(--error); }
+    .btn-add { background: none; border: 1.5px dashed var(--border); border-radius: 10px; padding: 10px 16px; font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.15s; width: 100%; text-align: center; }
+    .btn-add:hover { border-color: var(--blue-jeans); color: var(--blue-jeans); background: rgba(83,184,243,0.05); }
 
-    .user-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+    .custom-field-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; margin-bottom: 8px; }
+    .custom-field-row input { padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'Montserrat', sans-serif; font-size: 13px; width: 100%; }
+    .custom-field-row input:focus { outline: none; border-color: var(--blue-jeans); }
 
-    .user-name {
-      font-size: 13px;
-      font-weight: 600;
-      color: rgba(255,255,255,0.85);
-    }
+    .review-section { margin-bottom: 20px; }
+    .review-section-title { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--blue-jeans); margin-bottom: 10px; }
+    .review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; }
+    .review-item { display: flex; flex-direction: column; gap: 2px; }
+    .review-item-label { font-size: 11px; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.05em; }
+    .review-item-value { font-size: 14px; font-weight: 600; color: var(--text-main); }
+    .review-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .review-chip { background: var(--bright-gray); border-radius: 20px; padding: 4px 10px; font-size: 12px; font-weight: 600; color: var(--indigo); }
+    .review-code { font-family: monospace; font-size: 20px; font-weight: 800; color: var(--indigo); letter-spacing: 0.1em; background: var(--bright-gray); padding: 8px 16px; border-radius: 8px; display: inline-block; }
 
-    .btn-signout {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 8px;
-      padding: 6px 12px;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 12px;
-      font-weight: 600;
-      color: rgba(255,255,255,0.7);
-      cursor: pointer;
-      transition: background 0.15s;
-    }
+    .wizard-nav { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .btn-back { background: white; border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 20px; font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.15s; }
+    .btn-back:hover { border-color: var(--indigo); color: var(--indigo); }
+    .btn-next { background: var(--indigo); color: white; border: none; border-radius: 10px; padding: 12px 28px; font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.15s; }
+    .btn-next:hover { background: #163a5a; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(27,69,106,0.3); }
+    .btn-launch { background: var(--orange); color: white; border: none; border-radius: 10px; padding: 13px 28px; font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.15s; }
+    .btn-launch:hover { background: #e07a3e; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(243,142,83,0.4); }
+    .btn-launch:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-    .btn-signout:hover {
-      background: rgba(255,255,255,0.14);
-      color: white;
-    }
-
-    /* Dashboard body */
-    .dash-body {
-      padding: 32px 24px;
-      max-width: 760px;
-      margin: 0 auto;
-      width: 100%;
-      animation: cardIn 0.4s cubic-bezier(0.22,1,0.36,1) both;
-    }
-
-    .dash-welcome {
-      margin-bottom: 32px;
-    }
-
-    .dash-welcome h2 {
-      font-size: 22px;
-      font-weight: 800;
-      color: var(--indigo);
-      letter-spacing: -0.4px;
-      margin-bottom: 4px;
-    }
-
-    .dash-welcome p {
-      font-family: 'Libre Baskerville', serif;
-      font-style: italic;
-      font-size: 14px;
-      color: #6b7a8d;
-    }
-
-    /* Status card */
-    .status-card {
-      background: white;
-      border-radius: 14px;
-      padding: 24px;
-      box-shadow: 0 2px 12px rgba(27,69,106,0.08);
-      border: 1px solid rgba(27,69,106,0.07);
-      margin-bottom: 20px;
-    }
-
-    .status-card-label {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--blue-jeans);
-      margin-bottom: 10px;
-    }
-
-    .status-card-title {
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--indigo);
-      margin-bottom: 6px;
-    }
-
-    .status-card-body {
-      font-size: 14px;
-      color: #6b7a8d;
-      line-height: 1.6;
-    }
-
-    .build-list {
-      list-style: none;
-      margin-top: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .build-list li {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 13px;
-      font-weight: 500;
-      color: #4a5568;
-    }
-
-    .build-list li .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .dot.done   { background: #22c55e; }
-    .dot.active { background: var(--orange); }
-    .dot.next   { background: #cbd5e1; }
-
-    /* Pill badge */
-    .badge {
-      display: inline-block;
-      padding: 3px 9px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-
-    .badge.success {
-      background: rgba(34,197,94,0.12);
-      color: #16a34a;
-    }
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--indigo); color: white; padding: 13px 22px; border-radius: 12px; font-size: 14px; font-weight: 600; box-shadow: 0 8px 24px rgba(0,0,0,0.25); transition: transform 0.3s cubic-bezier(0.22,1,0.36,1); z-index: 999; white-space: nowrap; }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.success { background: #16a34a; }
+    .toast.err { background: var(--error); }
   </style>
 </head>
 <body>
 
-  <!-- ══ LOGIN SCREEN ══ -->
+  <!-- LOGIN -->
   <div id="login-screen">
     <div class="card-wrap">
-      <div class="card">
-
+      <div class="login-card">
         <div class="logo">
           <div class="logo-mark"><span>GG</span></div>
           <div class="logo-text">
@@ -485,42 +249,23 @@
             <span class="app">Sifting Admin</span>
           </div>
         </div>
-
-        <div class="headline">
-          <h1>Welcome<span>.</span></h1>
-        </div>
-        <p class="subhead">Regional leader portal for configuring and managing Sifting Weeks.</p>
-
+        <h1>Welcome<span>.</span></h1>
+        <p class="login-subhead">Regional leader portal for configuring and managing Sifting Weeks.</p>
         <button class="btn-google" id="btn-google-signin">
-          <!-- Google "G" icon -->
-          <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
-            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-          </svg>
+          <svg class="google-icon" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
           Sign in with Google
         </button>
-
-        <div class="status" id="status-msg"></div>
-
-        <div class="divider"><span>Access</span></div>
-
-        <p class="access-note">
-          Restricted to <strong>@globalgates.info</strong> accounts.<br/>
-          Field team members do not need an account.
-        </p>
-
+        <div class="status-msg" id="login-status"></div>
+        <div class="login-divider"><span>Access</span></div>
+        <p class="access-note">Restricted to <strong>@globalgates.info</strong> accounts.<br/>Field team members do not need an account.</p>
       </div>
     </div>
-
-    <!-- NYC skyline silhouette -->
     <svg class="skyline" viewBox="0 0 1440 120" preserveAspectRatio="xMidYMax meet" fill="var(--bright-gray)" xmlns="http://www.w3.org/2000/svg">
       <path d="M0,120 L0,80 L20,80 L20,60 L30,60 L30,40 L40,40 L40,60 L50,60 L50,80 L60,80 L60,50 L70,50 L70,30 L75,30 L75,20 L80,20 L80,30 L85,30 L85,50 L90,50 L90,80 L100,80 L100,60 L110,60 L110,40 L120,40 L120,60 L130,60 L130,80 L140,80 L140,55 L150,55 L150,35 L155,35 L155,25 L160,25 L160,35 L165,35 L165,55 L175,55 L175,80 L190,80 L190,45 L200,45 L200,25 L210,25 L210,45 L220,45 L220,80 L230,80 L230,60 L240,60 L240,40 L245,40 L245,30 L250,30 L250,20 L255,20 L255,30 L260,30 L260,40 L265,40 L265,60 L275,60 L275,80 L290,80 L290,55 L300,55 L300,70 L310,70 L310,80 L320,80 L320,50 L330,50 L330,30 L335,30 L335,15 L340,15 L340,30 L345,30 L345,50 L355,50 L355,80 L370,80 L370,60 L380,60 L380,45 L385,45 L385,35 L390,35 L390,45 L395,45 L395,60 L410,60 L410,80 L425,80 L425,55 L435,55 L435,65 L445,65 L445,80 L460,80 L460,45 L470,45 L470,25 L475,25 L475,10 L480,10 L480,25 L485,25 L485,45 L495,45 L495,80 L510,80 L510,60 L520,60 L520,40 L530,40 L530,60 L540,60 L540,80 L555,80 L555,50 L565,50 L565,70 L575,70 L575,80 L590,80 L590,45 L600,45 L600,30 L605,30 L605,20 L610,20 L610,30 L615,30 L615,45 L625,45 L625,80 L640,80 L640,55 L650,55 L650,40 L660,40 L660,55 L670,55 L670,80 L685,80 L685,60 L695,60 L695,75 L705,75 L705,80 L720,80 L720,50 L730,50 L730,35 L735,35 L735,22 L740,22 L740,35 L745,35 L745,50 L755,50 L755,80 L770,80 L770,60 L780,60 L780,45 L785,45 L785,35 L790,35 L790,45 L795,45 L795,60 L805,60 L805,80 L820,80 L820,55 L830,55 L830,70 L840,70 L840,80 L855,80 L855,45 L865,45 L865,30 L870,30 L870,18 L875,18 L875,30 L880,30 L880,45 L890,45 L890,80 L905,80 L905,60 L915,60 L915,40 L925,40 L925,60 L935,60 L935,80 L950,80 L950,55 L960,55 L960,65 L970,65 L970,80 L985,80 L985,50 L995,50 L995,32 L1000,32 L1000,20 L1005,20 L1005,32 L1010,32 L1010,50 L1020,50 L1020,80 L1035,80 L1035,60 L1045,60 L1045,45 L1055,45 L1055,60 L1065,60 L1065,80 L1080,80 L1080,55 L1090,55 L1090,70 L1100,70 L1100,80 L1115,80 L1115,45 L1125,45 L1125,28 L1130,28 L1130,16 L1135,16 L1135,28 L1140,28 L1140,45 L1150,45 L1150,80 L1165,80 L1165,60 L1175,60 L1175,42 L1185,42 L1185,60 L1195,60 L1195,80 L1210,80 L1210,55 L1220,55 L1220,38 L1225,38 L1225,25 L1230,25 L1230,38 L1235,38 L1235,55 L1245,55 L1245,80 L1260,80 L1260,60 L1270,60 L1270,75 L1280,75 L1280,80 L1295,80 L1295,50 L1305,50 L1305,35 L1310,35 L1310,22 L1315,22 L1315,35 L1320,35 L1320,50 L1330,50 L1330,80 L1345,80 L1345,60 L1355,60 L1355,45 L1365,45 L1365,60 L1375,60 L1375,80 L1390,80 L1390,70 L1400,70 L1400,80 L1440,80 L1440,120 Z"/>
     </svg>
   </div>
 
-  <!-- ══ DASHBOARD (shown after successful login) ══ -->
+  <!-- APP -->
   <div id="app">
     <nav class="topbar">
       <div class="topbar-left">
@@ -529,62 +274,216 @@
       </div>
       <div class="topbar-right">
         <div class="user-pill">
-          <div class="user-avatar" id="user-avatar-wrap">
-            <span id="user-initials">?</span>
-          </div>
+          <div class="user-avatar" id="user-avatar-wrap"><span id="user-initials">?</span></div>
           <span class="user-name" id="user-display-name">—</span>
         </div>
         <button class="btn-signout" id="btn-signout">Sign out</button>
       </div>
     </nav>
 
-    <div class="dash-body">
-      <div class="dash-welcome">
-        <h2 id="dash-greeting">Welcome back.</h2>
-        <p>Here's where things stand with the admin build.</p>
-      </div>
-
-      <div class="status-card">
-        <div class="status-card-label">Firebase Auth</div>
-        <div class="status-card-title">
-          Login working <span class="badge success">✓ Live</span>
+    <!-- DASHBOARD -->
+    <div id="screen-dashboard">
+      <div class="dash-header">
+        <div>
+          <h2 id="dash-greeting">Your Weeks</h2>
+          <p>Manage and launch Sifting Weeks for your region.</p>
         </div>
-        <div class="status-card-body">
-          You're signed in with a verified @globalgates.info account. Firebase Auth is connected and the domain restriction is active.
-        </div>
+        <button class="btn-primary" id="btn-new-week">＋ New Week</button>
       </div>
-
-      <div class="status-card">
-        <div class="status-card-label">Build Sequence</div>
-        <div class="status-card-title">What's next</div>
-        <div class="status-card-body">
-          Admin backend build in progress. Sessions are focused — NYC pilot target is end of April.
-          <ul class="build-list">
-            <li><span class="dot done"></span> PWA v1.0 field app — live</li>
-            <li><span class="dot done"></span> Firebase project + Auth — done this session</li>
-            <li><span class="dot active"></span> Week creation wizard (5 steps) — next</li>
-            <li><span class="dot next"></span> Field app config pull from Firestore</li>
-            <li><span class="dot next"></span> Contacts → Firestore → Google Sheets</li>
-            <li><span class="dot next"></span> Admin dashboard — live tallies + contact list</li>
-          </ul>
+      <div id="weeks-container">
+        <div class="weeks-empty" id="weeks-empty">
+          <div class="empty-icon">📋</div>
+          <h3>No weeks yet</h3>
+          <p>Create your first Sifting Week to get started.<br/>It only takes a few minutes to configure.</p>
+          <button class="btn-primary" id="btn-new-week-empty">＋ Create First Week</button>
         </div>
+        <div class="weeks-grid" id="weeks-grid" style="display:none;"></div>
       </div>
-
     </div>
-  </div>
 
-  <!-- ══ FIREBASE SDK (CDN — no build tools needed) ══ -->
+    <!-- WIZARD -->
+    <div id="screen-wizard">
+      <div class="wizard-progress">
+        <div class="progress-steps">
+          <div class="progress-step" id="prog-1"></div>
+          <div class="progress-step" id="prog-2"></div>
+          <div class="progress-step" id="prog-3"></div>
+          <div class="progress-step" id="prog-4"></div>
+          <div class="progress-step" id="prog-5"></div>
+        </div>
+        <div class="progress-label">Step <span id="prog-current">1</span> of 5 — <span id="prog-title">Basics</span></div>
+      </div>
+
+      <!-- Step 1 -->
+      <div class="wizard-step active" id="step-1">
+        <div class="step-card">
+          <div class="step-title">Week Basics</div>
+          <div class="step-subtitle">Name, location, dates, and code word for this Sifting Week.</div>
+          <div class="field">
+            <label>Week Name</label>
+            <input type="text" id="f-label" placeholder="e.g. NYC Spring 2026" maxlength="60" />
+            <div class="field-error" id="err-label">Please enter a week name.</div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>City</label>
+              <input type="text" id="f-city" placeholder="e.g. New York City" />
+              <div class="field-error" id="err-city">Please enter a city.</div>
+            </div>
+            <div class="field">
+              <label>Region</label>
+              <select id="f-region">
+                <option value="">Select…</option>
+                <option value="northeast">Northeast</option>
+                <option value="southeast">Southeast</option>
+                <option value="midwest">Midwest</option>
+                <option value="southwest">Southwest</option>
+                <option value="west">West</option>
+                <option value="international">International</option>
+              </select>
+              <div class="field-error" id="err-region">Please select a region.</div>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Start Date</label>
+              <input type="date" id="f-start" />
+              <div class="field-error" id="err-start">Please set a start date.</div>
+            </div>
+            <div class="field">
+              <label>End Date</label>
+              <input type="date" id="f-end" />
+              <div class="field-error" id="err-end">End date must be after start.</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Code Word</label>
+            <div class="code-word-wrap">
+              <input type="text" id="f-codeword" placeholder="e.g. NYCSPRING26" maxlength="12" />
+              <button class="btn-regen" id="btn-regen" title="Generate new code word">🔀</button>
+            </div>
+            <div class="field-hint">All-caps, 4–12 characters. Field teams enter this to access week config.</div>
+            <div class="field-error" id="err-codeword">Code word must be 4–12 letters/numbers, no spaces.</div>
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn-back" id="btn-back-dashboard">← Dashboard</button>
+          <button class="btn-next" id="btn-step1-next">Next →</button>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="wizard-step" id="step-2">
+        <div class="step-card">
+          <div class="step-title">Training Modules</div>
+          <div class="step-subtitle">Which training resources should be active for this week's field team?</div>
+          <div class="toggle-list" id="modules-list"></div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn-back" id="btn-step2-back">← Back</button>
+          <button class="btn-next" id="btn-step2-next">Next →</button>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="wizard-step" id="step-3">
+        <div class="step-card">
+          <div class="step-title">Tally Fields</div>
+          <div class="step-subtitle">Which metrics does the field team track in their Daily Tally?</div>
+          <div class="toggle-list" id="tally-list"></div>
+          <div style="margin-top:16px;">
+            <div id="custom-fields-list"></div>
+            <button class="btn-add" id="btn-add-custom-tally">+ Add custom field</button>
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn-back" id="btn-step3-back">← Back</button>
+          <button class="btn-next" id="btn-step3-next">Next →</button>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="wizard-step" id="step-4">
+        <div class="step-card">
+          <div class="step-title">Follow-Up Routing</div>
+          <div class="step-subtitle">Who receives contact submissions from the field? Mark one as primary — they get every submission. Others are CC'd.</div>
+          <div class="recipient-list" id="recipient-list"></div>
+          <button class="btn-add" id="btn-add-recipient">+ Add recipient</button>
+          <div class="field-error" id="err-recipients" style="margin-top:10px;">At least one recipient with a valid email is required.</div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn-back" id="btn-step4-back">← Back</button>
+          <button class="btn-next" id="btn-step4-next">Next →</button>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="wizard-step" id="step-5">
+        <div class="step-card">
+          <div class="step-title">Survey &amp; Newsletter</div>
+          <div class="step-subtitle">Add newsletter options shown on the post-trip survey. These are optional.</div>
+          <div id="newsletter-list"></div>
+          <button class="btn-add" id="btn-add-newsletter">+ Add newsletter option</button>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn-back" id="btn-step5-back">← Back</button>
+          <button class="btn-next" id="btn-step5-next">Review →</button>
+        </div>
+      </div>
+
+      <!-- Step 6: Review -->
+      <div class="wizard-step" id="step-6">
+        <div class="step-card">
+          <div class="step-title">Review &amp; Launch</div>
+          <div class="step-subtitle">Everything look right? You can edit weeks after launch.</div>
+          <div class="review-section">
+            <div class="review-section-title">Code Word</div>
+            <div class="review-code" id="review-codeword">—</div>
+          </div>
+          <div class="review-section">
+            <div class="review-section-title">Basics</div>
+            <div class="review-grid">
+              <div class="review-item"><span class="review-item-label">Week Name</span><span class="review-item-value" id="review-label">—</span></div>
+              <div class="review-item"><span class="review-item-label">City</span><span class="review-item-value" id="review-city">—</span></div>
+              <div class="review-item"><span class="review-item-label">Region</span><span class="review-item-value" id="review-region">—</span></div>
+              <div class="review-item"><span class="review-item-label">Dates</span><span class="review-item-value" id="review-dates">—</span></div>
+            </div>
+          </div>
+          <div class="review-section">
+            <div class="review-section-title">Active Modules</div>
+            <div class="review-list" id="review-modules"></div>
+          </div>
+          <div class="review-section">
+            <div class="review-section-title">Tally Fields</div>
+            <div class="review-list" id="review-tally"></div>
+          </div>
+          <div class="review-section">
+            <div class="review-section-title">Follow-Up Recipients</div>
+            <div class="review-list" id="review-recipients"></div>
+          </div>
+          <div class="review-section">
+            <div class="review-section-title">Newsletter Options</div>
+            <div class="review-list" id="review-newsletter"></div>
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn-back" id="btn-step6-back">← Back</button>
+          <button class="btn-launch" id="btn-launch">🚀 Launch Week</button>
+        </div>
+      </div>
+
+    </div><!-- /screen-wizard -->
+  </div><!-- /app -->
+
+  <div class="toast" id="toast"></div>
+
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import {
-      getAuth,
-      GoogleAuthProvider,
-      signInWithPopup,
-      signOut,
-      onAuthStateChanged
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { initializeApp }    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+                                from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp }
+                                from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // ── Your Firebase config ──
     const firebaseConfig = {
       apiKey: "AIzaSyC9fQikLwGNo7WYQ-8Ch1VA9v7HrDzXH3I",
       authDomain: "gg-sifting-admin.firebaseapp.com",
@@ -594,118 +493,434 @@
       appId: "1:440903094020:web:26c982cb7e443c1bac4a51"
     };
 
-    const app  = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const provider = new GoogleAuthProvider();
-
-    // Force account picker every time (useful for orgs with multiple Google accounts)
+    const firebaseApp = initializeApp(firebaseConfig);
+    const auth        = getAuth(firebaseApp);
+    const db          = getFirestore(firebaseApp);
+    const provider    = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
 
-    // ── DOM refs ──
-    const loginScreen    = document.getElementById('login-screen');
-    const appScreen      = document.getElementById('app');
-    const btnSignIn      = document.getElementById('btn-google-signin');
-    const btnSignOut     = document.getElementById('btn-signout');
-    const statusMsg      = document.getElementById('status-msg');
-    const userDisplayName = document.getElementById('user-display-name');
-    const userInitials   = document.getElementById('user-initials');
-    const userAvatarWrap = document.getElementById('user-avatar-wrap');
-    const dashGreeting   = document.getElementById('dash-greeting');
-
-    // ── Domain check — only @globalgates.info ──
     const ALLOWED_DOMAIN = 'globalgates.info';
+    let currentUser = null;
 
-    function isAllowedEmail(email) {
-      return email && email.toLowerCase().endsWith('@' + ALLOWED_DOMAIN);
+    // ── Default data ──────────────────────────────────────────
+    const DEFAULT_MODULES = [
+      { id: 'three-circles',  label: '3 Circles Gospel',       desc: 'Full gospel presentation walkthrough',       on: true  },
+      { id: 'house-of-peace', label: 'House of Peace',         desc: 'Luke 10 POP search and door script',        on: true  },
+      { id: '411-tool',       label: '411 Discipleship Tool',  desc: '4 questions, Oikos map, WHEN goals',        on: true  },
+      { id: 'prayer-walking', label: 'Prayer Walking Guide',   desc: 'What to pray, practical tips',              on: true  },
+      { id: 'holy-spirit',    label: "Holy Spirit's Power",    desc: 'John 14:12, daily filling',                 on: true  },
+      { id: 'cultural',       label: 'Cultural Awareness',     desc: "Islam basics, bridge points, dos/don'ts",   on: false },
+      { id: 'prayer-guide',   label: '12-Day Prayer Guide',    desc: 'Daily prayer guide, auto-expands today',    on: true  },
+    ];
+
+    const DEFAULT_TALLY = [
+      { id: 'gospel',    label: 'Gospel Shares',        on: true  },
+      { id: 'prayer',    label: 'Prayer Conversations', on: true  },
+      { id: 'pop',       label: 'Persons of Peace',     on: true  },
+      { id: 'decisions', label: 'Decisions',            on: true  },
+      { id: 'doors',     label: 'Doors Knocked',        on: false },
+      { id: 'bibles',    label: 'Bibles Given',         on: false },
+      { id: 'films',     label: 'Jesus Films Given',    on: false },
+    ];
+
+    // ── Wizard state ─────────────────────────────────────────
+    let ws = {};
+    function resetWizardState() {
+      ws = {
+        modules:           JSON.parse(JSON.stringify(DEFAULT_MODULES)),
+        tally:             JSON.parse(JSON.stringify(DEFAULT_TALLY)),
+        customTallyFields: [],
+        recipients:        [{ name: '', email: '', primary: true }],
+        newsletters:       [],
+      };
     }
 
-    // ── Show status message ──
-    function showStatus(msg, type = 'error') {
-      statusMsg.textContent = msg;
-      statusMsg.className = 'status ' + type;
+    // ── Utilities ────────────────────────────────────────────
+    function showToast(msg, type = '') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast' + (type ? ' ' + type : '');
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
     }
 
-    function clearStatus() {
-      statusMsg.className = 'status';
-      statusMsg.textContent = '';
+    function isValidEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+
+    function formatDate(str) {
+      if (!str) return '—';
+      const [y, m, d] = str.split('-');
+      return `${m}/${d}/${y}`;
     }
 
-    // ── Update UI for signed-in user ──
-    function showDashboard(user) {
-      // Populate top bar
-      const name = user.displayName || user.email.split('@')[0];
-      userDisplayName.textContent = name;
-
-      // Initials fallback if no photo
-      const parts = name.split(' ');
-      const initials = parts.length >= 2
-        ? parts[0][0] + parts[parts.length - 1][0]
-        : name.slice(0, 2);
-      userInitials.textContent = initials.toUpperCase();
-
-      // Use Google profile photo if available
-      if (user.photoURL) {
-        userAvatarWrap.innerHTML = `<img src="${user.photoURL}" alt="${name}" />`;
-      }
-
-      // Greeting
-      const firstName = parts[0];
-      dashGreeting.textContent = `Welcome back, ${firstName}.`;
-
-      // Swap screens
-      loginScreen.style.display = 'none';
-      appScreen.style.display   = 'flex';
+    const WORDS = ['ARISE','BEACON','BRIDGE','CITY','DAWN','ECHO','FAITH','GATES','HARVEST','HOPE','JOURNEY','KINGDOM','LIGHT','MISSION','PEACE','REACH','SEND','SIFT','SPARK','SURGE','TORCH','UNITE','VOICE','WAVE'];
+    function genCodeWord() {
+      return WORDS[Math.floor(Math.random() * WORDS.length)] + String(new Date().getFullYear()).slice(2);
     }
 
-    function showLogin() {
-      loginScreen.style.display = 'block';
-      appScreen.style.display   = 'none';
-    }
+    // ── AUTH ─────────────────────────────────────────────────
+    const GOOGLE_ICON_SVG = `<svg class="google-icon" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>`;
 
-    // ── Auth state listener — runs on every page load ──
-    onAuthStateChanged(auth, (user) => {
-      if (user && isAllowedEmail(user.email)) {
-        showDashboard(user);
-      } else {
-        if (user) {
-          // Signed in but wrong domain — sign them back out silently
-          signOut(auth);
-        }
-        showLogin();
-      }
-    });
-
-    // ── Sign In ──
-    btnSignIn.addEventListener('click', async () => {
-      clearStatus();
-      btnSignIn.disabled = true;
-      btnSignIn.textContent = 'Signing in…';
-
+    document.getElementById('btn-google-signin').addEventListener('click', async () => {
+      const btn    = document.getElementById('btn-google-signin');
+      const status = document.getElementById('login-status');
+      btn.disabled = true;
+      btn.textContent = 'Signing in…';
+      status.className = 'status-msg';
       try {
         const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-
-        if (!isAllowedEmail(user.email)) {
+        if (!result.user.email.toLowerCase().endsWith('@' + ALLOWED_DOMAIN)) {
           await signOut(auth);
-          showStatus(`Access restricted to @${ALLOWED_DOMAIN} accounts. You signed in as ${user.email}.`);
-          btnSignIn.disabled = false;
-          btnSignIn.innerHTML = `<svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Sign in with Google`;
-          return;
+          status.textContent = `Access restricted to @${ALLOWED_DOMAIN}. You signed in as ${result.user.email}.`;
+          status.className = 'status-msg error';
+          btn.disabled = false;
+          btn.innerHTML = GOOGLE_ICON_SVG + ' Sign in with Google';
         }
-
-        // Success — onAuthStateChanged will handle the redirect
       } catch (err) {
         if (err.code !== 'auth/popup-closed-by-user') {
-          showStatus('Sign-in failed. Please try again.');
-          console.error(err);
+          status.textContent = 'Sign-in failed. Please try again.';
+          status.className = 'status-msg error';
         }
-        btnSignIn.disabled = false;
-        btnSignIn.innerHTML = `<svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Sign in with Google`;
+        btn.disabled = false;
+        btn.innerHTML = GOOGLE_ICON_SVG + ' Sign in with Google';
       }
     });
 
-    // ── Sign Out ──
-    btnSignOut.addEventListener('click', () => signOut(auth));
+    document.getElementById('btn-signout').addEventListener('click', () => signOut(auth));
+
+    onAuthStateChanged(auth, user => {
+      if (user && user.email.toLowerCase().endsWith('@' + ALLOWED_DOMAIN)) {
+        currentUser = user;
+        const name   = user.displayName || user.email.split('@')[0];
+        const parts  = name.split(' ');
+        const initials = parts.length >= 2 ? parts[0][0] + parts[parts.length-1][0] : name.slice(0,2);
+        document.getElementById('user-display-name').textContent = parts[0];
+        const aw = document.getElementById('user-avatar-wrap');
+        if (user.photoURL) { aw.innerHTML = `<img src="${user.photoURL}" alt="${name}" />`; }
+        else { document.getElementById('user-initials').textContent = initials.toUpperCase(); }
+        document.getElementById('dash-greeting').textContent = `Welcome back, ${parts[0]}.`;
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'flex';
+        showDashboard();
+      } else {
+        if (user) signOut(auth);
+        currentUser = null;
+        document.getElementById('login-screen').style.display = 'block';
+        document.getElementById('app').style.display = 'none';
+        const btn = document.getElementById('btn-google-signin');
+        btn.disabled = false;
+        btn.innerHTML = GOOGLE_ICON_SVG + ' Sign in with Google';
+      }
+    });
+
+    // ── DASHBOARD ────────────────────────────────────────────
+    async function showDashboard() {
+      document.getElementById('screen-dashboard').style.display = 'block';
+      document.getElementById('screen-wizard').style.display   = 'none';
+      if (!currentUser) return;
+      try {
+        const q    = query(collection(db, 'weeks'), where('createdBy', '==', currentUser.uid));
+        const snap = await getDocs(q);
+        const weeks = [];
+        snap.forEach(doc => weeks.push({ id: doc.id, ...doc.data() }));
+        const empty = document.getElementById('weeks-empty');
+        const grid  = document.getElementById('weeks-grid');
+        if (weeks.length === 0) {
+          empty.style.display = 'block'; grid.style.display = 'none';
+        } else {
+          empty.style.display = 'none'; grid.style.display = 'flex';
+          grid.innerHTML = weeks.map(w => `
+            <div class="week-card">
+              <div>
+                <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;">
+                  <span class="week-card-name">${w.label}</span>
+                  <span class="status-badge ${w.status}">${w.status}</span>
+                </div>
+                <div class="week-card-meta">
+                  <span>📍 ${w.city}</span>
+                  <span>📅 ${formatDate(w.startDate)} – ${formatDate(w.endDate)}</span>
+                </div>
+              </div>
+              <span class="week-card-code">${w.codeWord}</span>
+            </div>
+          `).join('');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Could not load weeks.', 'err');
+      }
+    }
+
+    document.getElementById('btn-new-week').addEventListener('click', startWizard);
+    document.getElementById('btn-new-week-empty').addEventListener('click', startWizard);
+    document.getElementById('btn-back-dashboard').addEventListener('click', showDashboard);
+
+    // ── WIZARD ───────────────────────────────────────────────
+    function startWizard() {
+      resetWizardState();
+      document.getElementById('f-label').value    = '';
+      document.getElementById('f-city').value     = '';
+      document.getElementById('f-region').value   = '';
+      document.getElementById('f-start').value    = '';
+      document.getElementById('f-end').value      = '';
+      document.getElementById('f-codeword').value = genCodeWord();
+      // Clear all errors
+      document.querySelectorAll('.field-error').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.field input.invalid, .field select.invalid').forEach(el => el.classList.remove('invalid'));
+      renderModules();
+      renderTallyFields();
+      renderRecipients();
+      renderNewsletters();
+      document.getElementById('screen-dashboard').style.display = 'none';
+      document.getElementById('screen-wizard').style.display   = 'block';
+      goStep(1);
+    }
+
+    document.getElementById('btn-regen').addEventListener('click', () => {
+      document.getElementById('f-codeword').value = genCodeWord();
+    });
+    document.getElementById('f-codeword').addEventListener('input', e => {
+      e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    });
+
+    // Step nav
+    const STEP_TITLES = { 1:'Basics', 2:'Modules', 3:'Tally Fields', 4:'Follow-Up', 5:'Survey', 6:'Review' };
+
+    function goStep(n) {
+      document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active'));
+      document.getElementById('step-' + n).classList.add('active');
+      for (let i = 1; i <= 5; i++) {
+        const el = document.getElementById('prog-' + i);
+        el.className = 'progress-step' + (i < n ? ' done' : i === n ? ' current' : '');
+      }
+      document.getElementById('prog-current').textContent = Math.min(n, 5);
+      document.getElementById('prog-title').textContent   = STEP_TITLES[n] || 'Review';
+      if (n === 6) buildReview();
+      window.scrollTo(0, 0);
+    }
+
+    // Nav buttons
+    document.getElementById('btn-step1-next').addEventListener('click', () => { if (validateStep1()) goStep(2); });
+    document.getElementById('btn-step2-back').addEventListener('click', () => goStep(1));
+    document.getElementById('btn-step2-next').addEventListener('click', () => goStep(3));
+    document.getElementById('btn-step3-back').addEventListener('click', () => goStep(2));
+    document.getElementById('btn-step3-next').addEventListener('click', () => goStep(4));
+    document.getElementById('btn-step4-back').addEventListener('click', () => goStep(3));
+    document.getElementById('btn-step4-next').addEventListener('click', () => { if (validateRecipients()) goStep(5); });
+    document.getElementById('btn-step5-back').addEventListener('click', () => goStep(4));
+    document.getElementById('btn-step5-next').addEventListener('click', () => goStep(6));
+    document.getElementById('btn-step6-back').addEventListener('click', () => goStep(5));
+
+    // ── Step 1 validation ────────────────────────────────────
+    function validateStep1() {
+      const checks = [
+        { id: 'f-label',    err: 'err-label',    test: v => v.trim().length > 0 },
+        { id: 'f-city',     err: 'err-city',     test: v => v.trim().length > 0 },
+        { id: 'f-region',   err: 'err-region',   test: v => v !== '' },
+        { id: 'f-start',    err: 'err-start',    test: v => v !== '' },
+        { id: 'f-end',      err: 'err-end',      test: v => { const s = document.getElementById('f-start').value; return v !== '' && (!s || v >= s); }},
+        { id: 'f-codeword', err: 'err-codeword', test: v => /^[A-Z0-9]{4,12}$/.test(v) },
+      ];
+      let ok = true;
+      checks.forEach(c => {
+        const el  = document.getElementById(c.id);
+        const err = document.getElementById(c.err);
+        const pass = c.test(el.value);
+        el.classList.toggle('invalid', !pass);
+        err.style.display = pass ? 'none' : 'block';
+        if (!pass) ok = false;
+      });
+      return ok;
+    }
+
+    // ── Step 2: Modules ──────────────────────────────────────
+    function renderModules() {
+      const list = document.getElementById('modules-list');
+      list.innerHTML = ws.modules.map((m, i) => `
+        <div class="toggle-item ${m.on ? 'on' : ''}" data-idx="${i}">
+          <div class="toggle-item-left">
+            <span class="toggle-item-name">${m.label}</span>
+            <span class="toggle-item-desc">${m.desc}</span>
+          </div>
+          <div class="toggle-switch"></div>
+        </div>
+      `).join('');
+      list.querySelectorAll('.toggle-item').forEach(el => {
+        el.addEventListener('click', () => {
+          const i = +el.dataset.idx;
+          ws.modules[i].on = !ws.modules[i].on;
+          el.classList.toggle('on', ws.modules[i].on);
+        });
+      });
+    }
+
+    // ── Step 3: Tally ────────────────────────────────────────
+    function renderTallyFields() {
+      const list = document.getElementById('tally-list');
+      list.innerHTML = ws.tally.map((t, i) => `
+        <div class="toggle-item ${t.on ? 'on' : ''}" data-idx="${i}">
+          <div class="toggle-item-left">
+            <span class="toggle-item-name">${t.label}</span>
+          </div>
+          <div class="toggle-switch"></div>
+        </div>
+      `).join('');
+      list.querySelectorAll('.toggle-item').forEach(el => {
+        el.addEventListener('click', () => {
+          const i = +el.dataset.idx;
+          ws.tally[i].on = !ws.tally[i].on;
+          el.classList.toggle('on', ws.tally[i].on);
+        });
+      });
+      renderCustomTallyFields();
+    }
+
+    function renderCustomTallyFields() {
+      const c = document.getElementById('custom-fields-list');
+      c.innerHTML = ws.customTallyFields.map((f, i) => `
+        <div class="custom-field-row">
+          <input type="text" placeholder="Custom field name…" value="${f}" class="custom-tally-input" data-idx="${i}" />
+          <button class="btn-remove" data-idx="${i}">✕</button>
+        </div>
+      `).join('');
+      c.querySelectorAll('.custom-tally-input').forEach(el => {
+        el.addEventListener('input', e => { ws.customTallyFields[+e.target.dataset.idx] = e.target.value; });
+      });
+      c.querySelectorAll('.btn-remove').forEach(el => {
+        el.addEventListener('click', e => { ws.customTallyFields.splice(+e.target.dataset.idx, 1); renderCustomTallyFields(); });
+      });
+    }
+
+    document.getElementById('btn-add-custom-tally').addEventListener('click', () => {
+      ws.customTallyFields.push('');
+      renderCustomTallyFields();
+      setTimeout(() => { const els = document.querySelectorAll('.custom-tally-input'); if (els.length) els[els.length-1].focus(); }, 50);
+    });
+
+    // ── Step 4: Recipients ───────────────────────────────────
+    function renderRecipients() {
+      const list = document.getElementById('recipient-list');
+      list.innerHTML = ws.recipients.map((r, i) => `
+        <div class="recipient-row">
+          <input type="text"  placeholder="Name"  value="${r.name}"  class="rec-name"  data-idx="${i}" />
+          <input type="email" placeholder="Email" value="${r.email}" class="rec-email" data-idx="${i}" />
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <label class="recipient-primary">
+              <input type="radio" name="primary-rec" class="rec-primary" data-idx="${i}" ${r.primary ? 'checked' : ''} /> Primary
+            </label>
+            ${ws.recipients.length > 1 ? `<button class="btn-remove rec-remove" data-idx="${i}">✕</button>` : ''}
+          </div>
+        </div>
+      `).join('');
+      list.querySelectorAll('.rec-name').forEach(el => el.addEventListener('input', e => { ws.recipients[+e.target.dataset.idx].name = e.target.value; }));
+      list.querySelectorAll('.rec-email').forEach(el => el.addEventListener('input', e => { ws.recipients[+e.target.dataset.idx].email = e.target.value; }));
+      list.querySelectorAll('.rec-primary').forEach(el => el.addEventListener('change', e => { const idx = +e.target.dataset.idx; ws.recipients.forEach((r,i) => r.primary = (i===idx)); }));
+      list.querySelectorAll('.rec-remove').forEach(el => el.addEventListener('click', e => {
+        ws.recipients.splice(+e.target.dataset.idx, 1);
+        if (!ws.recipients.some(r => r.primary)) ws.recipients[0].primary = true;
+        renderRecipients();
+      }));
+    }
+
+    document.getElementById('btn-add-recipient').addEventListener('click', () => {
+      ws.recipients.push({ name:'', email:'', primary:false });
+      renderRecipients();
+      setTimeout(() => { const els = document.querySelectorAll('.rec-name'); if (els.length) els[els.length-1].focus(); }, 50);
+    });
+
+    function validateRecipients() {
+      const valid = ws.recipients.some(r => r.email && isValidEmail(r.email));
+      document.getElementById('err-recipients').style.display = valid ? 'none' : 'block';
+      return valid;
+    }
+
+    // ── Step 5: Newsletters ──────────────────────────────────
+    function renderNewsletters() {
+      const c = document.getElementById('newsletter-list');
+      if (ws.newsletters.length === 0) {
+        c.innerHTML = '<p style="font-size:13px;color:var(--text-soft);margin-bottom:12px;font-style:italic;">No options added yet — these are optional.</p>';
+        return;
+      }
+      c.innerHTML = ws.newsletters.map((n, i) => `
+        <div class="custom-field-row">
+          <input type="text" placeholder="e.g. GG Prayer Updates" value="${n.name}" class="nl-name" data-idx="${i}" />
+          <button class="btn-remove" data-idx="${i}">✕</button>
+        </div>
+      `).join('');
+      c.querySelectorAll('.nl-name').forEach(el => el.addEventListener('input', e => { ws.newsletters[+e.target.dataset.idx].name = e.target.value; }));
+      c.querySelectorAll('.btn-remove').forEach(el => el.addEventListener('click', e => { ws.newsletters.splice(+e.target.dataset.idx, 1); renderNewsletters(); }));
+    }
+
+    document.getElementById('btn-add-newsletter').addEventListener('click', () => {
+      ws.newsletters.push({ name:'' });
+      renderNewsletters();
+      setTimeout(() => { const els = document.querySelectorAll('.nl-name'); if (els.length) els[els.length-1].focus(); }, 50);
+    });
+
+    // ── Step 6: Review ───────────────────────────────────────
+    function buildReview() {
+      document.getElementById('review-codeword').textContent = document.getElementById('f-codeword').value;
+      document.getElementById('review-label').textContent    = document.getElementById('f-label').value;
+      document.getElementById('review-city').textContent     = document.getElementById('f-city').value;
+      document.getElementById('review-region').textContent   = document.getElementById('f-region').value;
+      document.getElementById('review-dates').textContent    = `${formatDate(document.getElementById('f-start').value)} – ${formatDate(document.getElementById('f-end').value)}`;
+
+      const activeMods = ws.modules.filter(m => m.on);
+      document.getElementById('review-modules').innerHTML = activeMods.length
+        ? activeMods.map(m => `<span class="review-chip">${m.label}</span>`).join('')
+        : '<span style="font-size:13px;color:var(--text-soft)">None selected</span>';
+
+      const activeTally = [...ws.tally.filter(t => t.on).map(t => t.label), ...ws.customTallyFields.filter(f => f.trim())];
+      document.getElementById('review-tally').innerHTML = activeTally.length
+        ? activeTally.map(l => `<span class="review-chip">${l}</span>`).join('')
+        : '<span style="font-size:13px;color:var(--text-soft)">None selected</span>';
+
+      document.getElementById('review-recipients').innerHTML = ws.recipients.filter(r => r.email).map(r =>
+        `<span class="review-chip">${r.name || r.email}${r.primary ? ' ★' : ''}</span>`
+      ).join('') || '<span style="font-size:13px;color:var(--text-soft)">None added</span>';
+
+      document.getElementById('review-newsletter').innerHTML = ws.newsletters.filter(n => n.name).map(n =>
+        `<span class="review-chip">${n.name}</span>`
+      ).join('') || '<span style="font-size:13px;color:var(--text-soft)">None added</span>';
+    }
+
+    // ── Launch → Firestore ───────────────────────────────────
+    document.getElementById('btn-launch').addEventListener('click', async () => {
+      if (!currentUser) return;
+      const btn = document.getElementById('btn-launch');
+      btn.disabled = true;
+      btn.textContent = 'Saving…';
+
+      const weekData = {
+        codeWord:  document.getElementById('f-codeword').value.trim().toUpperCase(),
+        label:     document.getElementById('f-label').value.trim(),
+        city:      document.getElementById('f-city').value.trim(),
+        region:    document.getElementById('f-region').value,
+        startDate: document.getElementById('f-start').value,
+        endDate:   document.getElementById('f-end').value,
+        status:    'active',
+        createdBy: currentUser.uid,
+        createdAt: serverTimestamp(),
+        activeModules: ws.modules.filter(m => m.on).map(m => m.id),
+        tallyFields: [
+          ...ws.tally.map(t => ({ id: t.id, label: t.label, active: t.on })),
+          ...ws.customTallyFields.filter(f => f.trim()).map((f, i) => ({ id: 'custom_' + i, label: f.trim(), active: true, custom: true })),
+        ],
+        followUpRecipients: ws.recipients.filter(r => r.email && isValidEmail(r.email)),
+        newsletterOptions:  ws.newsletters.filter(n => n.name.trim()),
+      };
+
+      try {
+        await addDoc(collection(db, 'weeks'), weekData);
+        showToast('Week launched! 🚀', 'success');
+        setTimeout(() => showDashboard(), 900);
+      } catch (err) {
+        console.error(err);
+        showToast('Save failed — check console.', 'err');
+        btn.disabled = false;
+        btn.textContent = '🚀 Launch Week';
+      }
+    });
+
   </script>
 </body>
 </html>
