@@ -530,17 +530,8 @@
             <div class="review-list" id="review-recipients"></div>
           </div>
           <div class="review-section">
-<<<<<<< HEAD
             <div class="review-section-title">Survey</div>
             <div id="review-survey"></div>
-=======
-            <div class="review-section-title">Follow-Up Form Mode</div>
-            <div class="review-list" id="review-followup-mode"></div>
-          </div>
-          <div class="review-section">
-            <div class="review-section-title">Newsletter Options</div>
-            <div class="review-list" id="review-newsletter"></div>
->>>>>>> 6edac7c (Add external follow-up form mode toggle)
           </div>
         </div>
         <div class="wizard-nav">
@@ -910,6 +901,22 @@
     document.getElementById('btn-step3-next').addEventListener('click', () => goStep(4));
     document.getElementById('btn-step4-back').addEventListener('click', () => goStep(3));
     document.getElementById('btn-step4-next').addEventListener('click', () => { if (validateRecipients()) goStep(5); });
+
+    document.querySelectorAll('input[name="followup-mode"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        const isLink = radio.value === 'link';
+        document.getElementById('followup-url-wrap').classList.toggle('visible', isLink);
+        document.getElementById('mode-opt-inapp').classList.toggle('active', !isLink);
+        document.getElementById('mode-opt-link').classList.toggle('active', isLink);
+        ws.followUpMode = radio.value;
+        ws.followUpFormUrl = isLink ? document.getElementById('followup-form-url').value.trim() : '';
+      });
+    });
+
+    document.getElementById('followup-form-url').addEventListener('input', () => {
+      ws.followUpFormUrl = document.getElementById('followup-form-url').value.trim();
+    });
+
     document.getElementById('btn-step5-back').addEventListener('click', () => goStep(4));
     document.getElementById('btn-step5-next').addEventListener('click', () => { if (validateSurvey()) goStep(6); });
     document.getElementById('btn-step6-back').addEventListener('click', () => goStep(5));
@@ -1040,29 +1047,7 @@
       setTimeout(() => { const els = document.querySelectorAll('.rec-name'); if (els.length) els[els.length-1].focus(); }, 50);
     });
 
-<<<<<<< HEAD
     // ── Newsletters ──────────────────────────────────────────
-=======
-    function validateRecipients() {
-      const valid = ws.recipients.some(r => r.email && isValidEmail(r.email));
-      document.getElementById('err-recipients').style.display = valid ? 'none' : 'block';
-      return valid;
-    }
-
-    // ── Step 4: Follow-Up Mode toggle ───────────────────────
-    document.querySelectorAll('input[name="followup-mode"]').forEach(radio => {
-      radio.addEventListener('change', e => {
-        ws.followUpMode = e.target.value;
-        document.getElementById('mode-opt-inapp').classList.toggle('active', ws.followUpMode === 'inapp');
-        document.getElementById('mode-opt-link').classList.toggle('active', ws.followUpMode === 'link');
-        document.getElementById('followup-url-wrap').classList.toggle('visible', ws.followUpMode === 'link');
-        if (ws.followUpMode === 'inapp') { ws.followUpFormUrl = ''; document.getElementById('followup-form-url').value = ''; }
-      });
-    });
-    document.getElementById('followup-form-url').addEventListener('input', e => { ws.followUpFormUrl = e.target.value.trim(); });
-
-    // ── Step 5: Newsletters ──────────────────────────────────
->>>>>>> 6edac7c (Add external follow-up form mode toggle)
     function renderNewsletters() {
       const c = document.getElementById('newsletter-list');
       if (ws.newsletters.length === 0) {
@@ -1106,7 +1091,6 @@
         `<span class="review-chip">${r.name || r.email}${r.primary ? ' ★' : ''}</span>`
       ).join('') || '<span style="font-size:13px;color:var(--text-soft)">None added</span>';
 
-<<<<<<< HEAD
       const surveyReview = document.getElementById('review-survey');
       if (surveyMode === 'inapp') {
         const nl = ws.newsletters.filter(n => n.name);
@@ -1116,16 +1100,6 @@
         const url = document.getElementById('f-survey-url').value;
         surveyReview.innerHTML = `<span class="review-chip">External Link</span> <span style="font-size:12px;color:var(--text-soft);word-break:break-all;">${url}</span>`;
       }
-=======
-      const modeLabel = ws.followUpMode === 'link'
-        ? `External Link${ws.followUpFormUrl ? ': ' + ws.followUpFormUrl : ' (no URL set)'}`
-        : 'In-App Form';
-      document.getElementById('review-followup-mode').innerHTML = `<span class="review-chip">${modeLabel}</span>`;
-
-      document.getElementById('review-newsletter').innerHTML = ws.newsletters.filter(n => n.name).map(n =>
-        `<span class="review-chip">${n.name}</span>`
-      ).join('') || '<span style="font-size:13px;color:var(--text-soft)">None added</span>';
->>>>>>> 6edac7c (Add external follow-up form mode toggle)
     }
 
     // ── Launch / Save → Firestore ────────────────────────────
@@ -1151,13 +1125,7 @@
           ...ws.customTallyFields.filter(f => f.trim()).map((f, i) => ({ id: 'custom_' + i, label: f.trim(), active: true, custom: true })),
         ],
         followUpRecipients: ws.recipients.filter(r => r.email && isValidEmail(r.email)),
-<<<<<<< HEAD
         survey: surveyConfig,
-=======
-        newsletterOptions:  ws.newsletters.filter(n => n.name.trim()),
-        followUpMode:       ws.followUpMode || 'inapp',
-        followUpFormUrl:    ws.followUpMode === 'link' ? (ws.followUpFormUrl || '') : '',
->>>>>>> 6edac7c (Add external follow-up form mode toggle)
       };
 
       try {
