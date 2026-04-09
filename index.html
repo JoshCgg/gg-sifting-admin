@@ -1126,6 +1126,8 @@
         ],
         followUpRecipients: ws.recipients.filter(r => r.email && isValidEmail(r.email)),
         survey: surveyConfig,
+        followUpMode: ws.followUpMode || 'inapp',
+        followUpFormUrl: ws.followUpMode === 'link' ? (ws.followUpFormUrl || '') : '',
       };
 
       try {
