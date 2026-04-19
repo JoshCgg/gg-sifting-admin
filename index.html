@@ -72,7 +72,7 @@
     #app { display: none; min-height: 100vh; flex-direction: column; background: var(--bright-gray); }
 
     .topbar { background: var(--indigo); padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 12px rgba(0,0,0,0.15); position: sticky; top: 0; z-index: 100; }
-    .topbar-left { display: flex; align-items: center; gap: 10px; }
+    .topbar-left { display: flex; align-items: center; gap: 10px; cursor: pointer; }
     .topbar-logo { width: 32px; height: 32px; background: var(--blue-jeans); border-radius: 7px; display: flex; align-items: center; justify-content: center; }
     .topbar-logo span { font-weight: 800; font-size: 13px; color: white; }
     .topbar-title { font-size: 15px; font-weight: 700; color: white; }
@@ -265,6 +265,20 @@
     .btn-apply-template:disabled { opacity: 0.5; cursor: not-allowed; }
     .template-applied-note { font-size: 12px; color: var(--blue-jeans); margin-top: 10px; display: none; }
     .template-applied-note a { color: var(--orange); font-weight: 700; cursor: pointer; text-decoration: underline; }
+    /* TEMPLATES SCREEN */
+    #screen-templates { display: none; padding: 32px 24px; max-width: 800px; margin: 0 auto; width: 100%; animation: fadeUp 0.4s cubic-bezier(0.22,1,0.36,1) both; }
+    .template-card { background: white; border-radius: 14px; padding: 20px 24px; border: 1px solid var(--border); margin-bottom: 12px; box-shadow: 0 2px 8px rgba(27,69,106,0.05); }
+    .template-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; }
+    .template-card-name { font-size: 16px; font-weight: 700; color: var(--indigo); }
+    .template-card-meta { font-size: 12px; color: var(--text-soft); margin-top: 3px; }
+    .template-card-actions { display: flex; gap: 8px; flex-shrink: 0; flex-wrap: wrap; }
+    .template-vis-badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; margin-left: 8px; }
+    .template-vis-badge.public { background: rgba(83,184,243,0.12); color: #1a7ab5; }
+    .template-vis-badge.private { background: rgba(107,122,141,0.12); color: #6b7a8d; }
+    .btn-delete-template { background: rgba(217,48,37,0.08); color: #b91c1c; }
+    .btn-delete-template:hover { background: #b91c1c; color: white; }
+    .btn-edit-template { background: rgba(27,69,106,0.08); color: var(--indigo); }
+    .btn-edit-template:hover { background: var(--indigo); color: white; }
   </style>
 </head>
 <body>
@@ -299,7 +313,7 @@
   <!-- APP -->
   <div id="app">
     <nav class="topbar">
-      <div class="topbar-left">
+      <div class="topbar-left" id="topbar-home">
         <div class="topbar-logo"><span>GG</span></div>
         <span class="topbar-title">Sifting Admin</span>
       </div>
@@ -319,7 +333,10 @@
           <h2 id="dash-greeting">Your Weeks</h2>
           <p>Manage and launch Sifting Weeks for your region.</p>
         </div>
-        <button class="btn-primary" id="btn-new-week">＋ New Week</button>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn-primary" id="btn-templates-screen" style="background:var(--blue-jeans);">🗂 Templates</button>
+          <button class="btn-primary" id="btn-new-week">＋ New Week</button>
+        </div>
       </div>
       <div id="weeks-container">
         <div class="weeks-empty" id="weeks-empty">
@@ -582,6 +599,21 @@
       </div>
 
     </div><!-- /screen-wizard -->
+
+    <!-- TEMPLATES SCREEN -->
+    <div id="screen-templates">
+      <div class="dash-header">
+        <div>
+          <h2>Templates</h2>
+          <p>Reusable week configurations. Public templates are visible to all admins.</p>
+        </div>
+        <button class="btn-primary" id="btn-templates-back">← Dashboard</button>
+      </div>
+      <div id="templates-list-container">
+        <div style="text-align:center;padding:40px;color:#a0b0c0;font-size:14px;">Loading templates…</div>
+      </div>
+    </div>
+
     <!-- SAVE AS TEMPLATE MODAL -->
     <div class="modal-overlay" id="template-modal">
       <div class="modal-card">
@@ -643,6 +675,7 @@
     let surveyMode     = 'inapp'; // 'inapp' | 'link'
     let editingWeekId  = null;    // null = new week, string = editing existing week
     let templateSourceWeekId = null;
+    let editingTemplateId = null;
 
     // ── Survey mode toggle (global so onclick can reach it) ───
     window.setSurveyMode = function(mode) {
@@ -879,8 +912,9 @@
 
     // ── Dashboard ────────────────────────────────────────────
     async function showDashboard() {
-      document.getElementById('screen-dashboard').style.display = 'block';
-      document.getElementById('screen-wizard').style.display   = 'none';
+      document.getElementById('screen-dashboard').style.display  = 'block';
+      document.getElementById('screen-wizard').style.display     = 'none';
+      document.getElementById('screen-templates').style.display  = 'none';
       if (!currentUser) return;
       try {
         const q    = query(collection(db, 'weeks'), where('createdBy', '==', currentUser.uid));
@@ -967,6 +1001,160 @@
       } catch (err) {
         console.error(err); showToast('Could not reopen week.', 'err');
       }
+    }
+
+    async function showTemplatesScreen() {
+      document.getElementById('screen-dashboard').style.display  = 'none';
+      document.getElementById('screen-wizard').style.display     = 'none';
+      document.getElementById('screen-templates').style.display  = 'block';
+
+      const container = document.getElementById('templates-list-container');
+      container.innerHTML = '<div style="text-align:center;padding:40px;color:#a0b0c0;font-size:14px;">Loading…</div>';
+
+      try {
+        const [publicSnap, privateSnap] = await Promise.all([
+          getDocs(query(collection(db, 'templates'), where('visibility', '==', 'public'))),
+          getDocs(query(collection(db, 'templates'), where('createdBy', '==', currentUser.uid)))
+        ]);
+        const seen = new Set();
+        const templates = [];
+        [...publicSnap.docs, ...privateSnap.docs].forEach(d => {
+          if (!seen.has(d.id)) { seen.add(d.id); templates.push({ id: d.id, ...d.data() }); }
+        });
+        templates.sort((a, b) => a.name.localeCompare(b.name));
+
+        if (!templates.length) {
+          container.innerHTML = `
+            <div class="weeks-empty">
+              <div class="empty-icon">🗂</div>
+              <h3>No templates yet</h3>
+              <p>Save a week as a template from the dashboard to get started.</p>
+            </div>`;
+          return;
+        }
+
+        container.innerHTML = templates.map(t => {
+          const canEdit = t.createdBy === currentUser.uid;
+          return `
+            <div class="template-card">
+              <div class="template-card-header">
+                <div>
+                  <div class="template-card-name">
+                    ${t.name}
+                    <span class="template-vis-badge ${t.visibility || 'private'}">${t.visibility === 'public' ? '🌐 Public' : '🔒 Private'}</span>
+                  </div>
+                  <div class="template-card-meta">
+                    ${t.city ? '📍 ' + t.city + ' · ' : ''}
+                    ${t.activeModules ? t.activeModules.length + ' modules' : ''}
+                    ${t.followUpRecipients && t.followUpRecipients.length ? ' · ' + t.followUpRecipients.length + ' recipient(s)' : ''}
+                  </div>
+                </div>
+                <div class="template-card-actions">
+                  ${canEdit ? `
+                    <button class="btn-card-action btn-edit-template" data-id="${t.id}">✏️ Edit Settings</button>
+                    <button class="btn-card-action btn-delete-template" data-id="${t.id}">Delete</button>
+                  ` : ''}
+                </div>
+              </div>
+            </div>`;
+        }).join('');
+
+        // Wire Edit Settings buttons
+        container.querySelectorAll('.btn-edit-template').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const t = templates.find(x => x.id === btn.dataset.id);
+            if (t) startTemplateEdit(t);
+          });
+        });
+
+        // Wire Delete buttons
+        container.querySelectorAll('.btn-delete-template').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            if (!confirm('Delete this template? This cannot be undone.')) return;
+            try {
+              const { deleteDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+              await deleteDoc(doc(db, 'templates', btn.dataset.id));
+              showToast('Template deleted.', 'success');
+              showTemplatesScreen();
+            } catch (err) {
+              console.error(err);
+              showToast('Could not delete template.', 'err');
+            }
+          });
+        });
+
+      } catch (err) {
+        console.error(err);
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:#b91c1c;font-size:14px;">Could not load templates.</div>';
+      }
+    }
+
+    function startTemplateEdit(template) {
+      resetWizardState();
+      editingWeekId    = null;
+      editingTemplateId = template.id;
+
+      // Pre-fill name and city
+      document.getElementById('f-label').value = template.name || '';
+      const cityEl = document.getElementById('f-city');
+      const knownCities = Array.from(cityEl.options).map(o => o.value);
+      if (template.city) {
+        if (knownCities.includes(template.city)) {
+          cityEl.value = template.city;
+          document.getElementById('city-other-wrap').style.display = 'none';
+        } else {
+          cityEl.value = 'other';
+          document.getElementById('f-city-other').value = template.city;
+          document.getElementById('city-other-wrap').style.display = 'block';
+        }
+      }
+
+      // Hide dates, code word, and template picker — not relevant for template editing
+      document.getElementById('f-start').closest('.field-row').style.display = 'none';
+      document.getElementById('f-codeword').closest('.field').style.display = 'none';
+      document.getElementById('template-picker').style.display = 'none';
+
+      // Modules
+      if (template.activeModules && template.activeModules.length) {
+        ws.modules.forEach(m => { m.on = template.activeModules.includes(m.id); });
+      }
+
+      // Tally
+      if (template.tallyFields && template.tallyFields.length) {
+        ws.tally.forEach(t => {
+          const saved = template.tallyFields.find(f => f.id === t.id);
+          if (saved) t.on = saved.active;
+        });
+        ws.customTallyFields = template.tallyFields.filter(f => f.custom).map(f => f.label);
+      }
+
+      // Recipients
+      if (template.followUpRecipients && template.followUpRecipients.length) {
+        ws.recipients = template.followUpRecipients.map(r => ({ ...r }));
+      }
+
+      // Follow-up mode
+      ws.followUpMode    = template.followUpMode || 'inapp';
+      ws.followUpFormUrl = template.followUpFormUrl || '';
+
+      // Survey
+      if (template.survey) {
+        surveyMode = template.survey.type || 'inapp';
+        ws.newsletters = (template.survey.newsletterOptions || []).map(n => ({ ...n }));
+        if (template.survey.type === 'link') {
+          document.getElementById('f-survey-url').value = template.survey.url || '';
+        }
+      }
+
+      // Update button label
+      document.getElementById('btn-launch').textContent = '💾 Update Template';
+
+      document.querySelectorAll('.field-error').forEach(el => el.style.display = 'none');
+      setSurveyMode(surveyMode);
+      renderModules(); renderTallyFields(); renderRecipients(); renderNewsletters();
+      document.getElementById('screen-templates').style.display = 'none';
+      document.getElementById('screen-wizard').style.display    = 'block';
+      goStep(1);
     }
 
     function openTemplateModal(week) {
@@ -1116,6 +1304,15 @@
     document.getElementById('btn-new-week').addEventListener('click', () => startWizard(null));
     document.getElementById('btn-new-week-empty').addEventListener('click', () => startWizard(null));
     document.getElementById('btn-back-dashboard').addEventListener('click', showDashboard);
+    document.getElementById('topbar-home').addEventListener('click', () => {
+      editingTemplateId = null;
+      document.getElementById('f-start').closest('.field-row').style.display = '';
+      document.getElementById('f-codeword').closest('.field').style.display = '';
+      document.getElementById('template-picker').style.display = '';
+      showDashboard();
+    });
+    document.getElementById('btn-templates-screen').addEventListener('click', showTemplatesScreen);
+    document.getElementById('btn-templates-back').addEventListener('click', showDashboard);
     document.getElementById('btn-apply-template').addEventListener('click', applyTemplate);
 
     document.getElementById('btn-regen').addEventListener('click', () => {
@@ -1391,12 +1588,31 @@
       };
 
       try {
-        if (editingWeekId) {
-          // Editing existing week — update only the editable fields (preserve status, createdBy, createdAt)
+        if (editingTemplateId) {
+          // Saving back to templates collection
+          const templateData = {
+            name:               document.getElementById('f-label').value.trim(),
+            city:               getCityValue(),
+            activeModules:      weekData.activeModules,
+            tallyFields:        weekData.tallyFields,
+            followUpRecipients: weekData.followUpRecipients,
+            survey:             weekData.survey,
+            followUpMode:       weekData.followUpMode,
+            followUpFormUrl:    weekData.followUpFormUrl,
+          };
+          await updateDoc(doc(db, 'templates', editingTemplateId), templateData);
+          showToast('Template updated! ✓', 'success');
+          editingTemplateId = null;
+          // Restore hidden fields
+          document.getElementById('f-start').closest('.field-row').style.display = '';
+          document.getElementById('f-codeword').closest('.field').style.display = '';
+          document.getElementById('template-picker').style.display = '';
+          setTimeout(() => showTemplatesScreen(), 900);
+        } else if (editingWeekId) {
           await updateDoc(doc(db, 'weeks', editingWeekId), weekData);
           showToast('Week updated! ✓', 'success');
+          setTimeout(() => showDashboard(), 900);
         } else {
-          // New week — set status and ownership
           await addDoc(collection(db, 'weeks'), {
             ...weekData,
             status:    'active',
@@ -1404,14 +1620,14 @@
             createdAt: serverTimestamp(),
           });
           showToast('Week launched! 🚀', 'success');
+          setTimeout(() => showDashboard(), 900);
         }
-        setTimeout(() => showDashboard(), 900);
       } catch (err) {
         console.error(err);
         showToast('Save failed — check console.', 'err');
       } finally {
         btn.disabled = false;
-        btn.textContent = editingWeekId ? '💾 Save Changes' : '🚀 Launch Week';
+        btn.textContent = editingTemplateId ? '💾 Update Template' : editingWeekId ? '💾 Save Changes' : '🚀 Launch Week';
       }
     });
 
