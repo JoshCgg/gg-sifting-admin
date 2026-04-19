@@ -474,11 +474,12 @@
 
           <!-- In-app panel: newsletter options -->
           <div class="survey-panel active" id="survey-panel-inapp">
-            <p style="font-size:13px;color:var(--text-soft);margin-bottom:14px;line-height:1.5;">
-              The built-in survey collects highlights, challenges, and whether they'd return. Add newsletter signup options below — team members can opt in during the survey.
+            <p style="font-size:13px;color:var(--text-soft);margin-bottom:16px;line-height:1.6;">
+              The built-in survey collects team reflections, next steps, and partnership interests. Add GG workers or ministries below — team members can subscribe to their prayer updates at the end of the survey.
             </p>
+            <div style="font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--indigo);margin-bottom:8px;">Prayer Update Subscriptions</div>
             <div id="newsletter-list"></div>
-            <button class="btn-add" id="btn-add-newsletter">+ Add newsletter option</button>
+            <button class="btn-add" id="btn-add-newsletter">+ Add person</button>
           </div>
 
           <!-- External link panel -->
@@ -1046,21 +1047,32 @@
     function renderNewsletters() {
       const c = document.getElementById('newsletter-list');
       if (ws.newsletters.length === 0) {
-        c.innerHTML = '<p style="font-size:13px;color:var(--text-soft);margin-bottom:12px;font-style:italic;">No options added yet.</p>';
+        c.innerHTML = '<p style="font-size:13px;color:var(--text-soft);margin-bottom:12px;font-style:italic;">No prayer update subscriptions added yet.</p>';
         return;
       }
       c.innerHTML = ws.newsletters.map((n, i) => `
-        <div class="custom-field-row">
-          <input type="text" placeholder="e.g. GG Prayer Updates" value="${n.name}" class="nl-name" data-idx="${i}" />
-          <button class="btn-remove" data-idx="${i}">✕</button>
+        <div class="recipient-row" style="margin-bottom:10px;">
+          <input type="text" placeholder="Name or ministry (visible to respondents)"
+            value="${n.name || ''}" class="nl-name" data-idx="${i}" />
+          <input type="email" placeholder="Email (admin only — not shown to team)"
+            value="${n.email || ''}" class="nl-email" data-idx="${i}" />
+          <button class="btn-remove nl-remove" data-idx="${i}">✕</button>
         </div>
       `).join('');
-      c.querySelectorAll('.nl-name').forEach(el => el.addEventListener('input', e => { ws.newsletters[+e.target.dataset.idx].name = e.target.value; }));
-      c.querySelectorAll('.btn-remove').forEach(el => el.addEventListener('click', e => { ws.newsletters.splice(+e.target.dataset.idx, 1); renderNewsletters(); }));
+      c.querySelectorAll('.nl-name').forEach(el => el.addEventListener('input', e => {
+        ws.newsletters[+e.target.dataset.idx].name = e.target.value;
+      }));
+      c.querySelectorAll('.nl-email').forEach(el => el.addEventListener('input', e => {
+        ws.newsletters[+e.target.dataset.idx].email = e.target.value;
+      }));
+      c.querySelectorAll('.nl-remove').forEach(el => el.addEventListener('click', e => {
+        ws.newsletters.splice(+e.target.dataset.idx, 1);
+        renderNewsletters();
+      }));
     }
 
     document.getElementById('btn-add-newsletter').addEventListener('click', () => {
-      ws.newsletters.push({ name:'' });
+      ws.newsletters.push({ name: '', email: '' });
       renderNewsletters();
       setTimeout(() => { const els = document.querySelectorAll('.nl-name'); if (els.length) els[els.length-1].focus(); }, 50);
     });
@@ -1090,7 +1102,10 @@
       if (surveyMode === 'inapp') {
         const nl = ws.newsletters.filter(n => n.name);
         surveyReview.innerHTML = `<span class="review-chip">In-App Survey</span> `
-          + (nl.length ? nl.map(n => `<span class="review-chip">${n.name}</span>`).join('') : '<span style="font-size:13px;color:var(--text-soft);margin-left:4px;">No newsletter options</span>');
+          + (nl.length
+            ? `<span style="font-size:12px;color:var(--text-soft);margin-left:6px;">Prayer updates: </span>`
+              + nl.map(n => `<span class="review-chip">${n.name}</span>`).join('')
+            : '<span style="font-size:12px;color:var(--text-soft);margin-left:4px;">No prayer update subscriptions</span>');
       } else {
         const url = document.getElementById('f-survey-url').value;
         surveyReview.innerHTML = `<span class="review-chip">External Link</span> <span style="font-size:12px;color:var(--text-soft);word-break:break-all;">${url}</span>`;
