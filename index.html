@@ -239,6 +239,20 @@
     .toast.show { transform: translateX(-50%) translateY(0); }
     .toast.success { background: #16a34a; }
     .toast.err { background: var(--error); }
+
+    /* TEMPLATES */
+    .btn-template { background: rgba(243,142,83,0.10); color: #b85a00; }
+    .btn-template:hover { background: var(--orange); color: white; }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; display: none; align-items: center; justify-content: center; padding: 24px; }
+    .modal-overlay.show { display: flex; }
+    .modal-card { background: white; border-radius: 20px; padding: 32px 28px; width: 100%; max-width: 440px; box-shadow: 0 24px 64px rgba(0,0,0,0.2); animation: fadeUp 0.3s cubic-bezier(0.22,1,0.36,1) both; }
+    .modal-title { font-size: 18px; font-weight: 800; color: var(--indigo); margin-bottom: 6px; }
+    .modal-subtitle { font-size: 13px; color: var(--text-soft); margin-bottom: 20px; line-height: 1.5; font-family: 'Libre Baskerville', serif; font-style: italic; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+    .modal-actions .btn-primary { flex: 1; justify-content: center; }
+    .modal-actions .btn-cancel { flex: 1; background: white; border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 20px; font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.15s; }
+    .modal-actions .btn-cancel:hover { border-color: var(--indigo); color: var(--indigo); }
   </style>
 </head>
 <body>
@@ -542,6 +556,24 @@
       </div>
 
     </div><!-- /screen-wizard -->
+    <!-- SAVE AS TEMPLATE MODAL -->
+    <div class="modal-overlay" id="template-modal">
+      <div class="modal-card">
+        <div class="modal-title">Save as Template</div>
+        <div class="modal-subtitle">Give this template a clear name so others can find it. Try a format like "NYC — Standard Week" or "Boston — Arabic Focus".</div>
+        <div class="field">
+          <label>Template Name</label>
+          <input type="text" id="template-name-input" placeholder="e.g. NYC — Standard Week" maxlength="60" />
+          <div class="field-hint">This will be visible to all Global Gates admins.</div>
+          <div class="field-error" id="err-template-name">Please enter a template name.</div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-cancel" id="btn-template-cancel">Cancel</button>
+          <button class="btn-primary" id="btn-template-save">💾 Save Template</button>
+        </div>
+      </div>
+    </div>
+
   </div><!-- /app -->
 
   <div class="toast" id="toast"></div>
@@ -550,7 +582,7 @@
     import { initializeApp }    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
                                 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, query, where, serverTimestamp }
+    import { getFirestore, collection, addDoc, getDocs, getDoc, doc, updateDoc, query, where, serverTimestamp, orderBy }
                                 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -572,6 +604,7 @@
     let currentUser    = null;
     let surveyMode     = 'inapp'; // 'inapp' | 'link'
     let editingWeekId  = null;    // null = new week, string = editing existing week
+    let templateSourceWeekId = null;
 
     // ── Survey mode toggle (global so onclick can reach it) ───
     window.setSurveyMode = function(mode) {
@@ -730,6 +763,7 @@
               </div>
               <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap;">
                 <span class="week-card-code">${w.codeWord}</span>
+                <button class="btn-card-action btn-template" data-id="${w.id}">Use as Template</button>
                 <button class="btn-card-action btn-edit" data-id="${w.id}">Edit</button>
                 ${w.status !== 'closed'
                   ? `<button class="btn-card-action btn-close-week" data-id="${w.id}">Close</button>`
@@ -755,6 +789,14 @@
           // Wire up Reopen buttons
           grid.querySelectorAll('.btn-reopen').forEach(btn => {
             btn.addEventListener('click', () => reopenWeek(btn.dataset.id));
+          });
+
+          // Wire up Use as Template buttons
+          grid.querySelectorAll('.btn-template').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const week = weeks.find(w => w.id === btn.dataset.id);
+              if (week) openTemplateModal(week);
+            });
           });
         }
       } catch (err) {
@@ -782,6 +824,62 @@
         console.error(err); showToast('Could not reopen week.', 'err');
       }
     }
+
+    function openTemplateModal(week) {
+      templateSourceWeekId = week.id;
+      document.getElementById('template-name-input').value = '';
+      document.getElementById('err-template-name').style.display = 'none';
+      document.getElementById('template-modal').classList.add('show');
+      setTimeout(() => document.getElementById('template-name-input').focus(), 100);
+    }
+
+    document.getElementById('btn-template-cancel').addEventListener('click', () => {
+      document.getElementById('template-modal').classList.remove('show');
+      templateSourceWeekId = null;
+    });
+
+    document.getElementById('btn-template-save').addEventListener('click', async () => {
+      const name = document.getElementById('template-name-input').value.trim();
+      if (!name) {
+        document.getElementById('err-template-name').style.display = 'block';
+        return;
+      }
+      if (!templateSourceWeekId) return;
+
+      const btn = document.getElementById('btn-template-save');
+      btn.disabled = true;
+      btn.textContent = 'Saving…';
+
+      try {
+        // Find the source week data from already-loaded weeks
+        const weekSnap = await getDoc(doc(db, 'weeks', templateSourceWeekId));
+        if (!weekSnap.exists()) throw new Error('Week not found');
+        const weekData = weekSnap.data();
+
+        await addDoc(collection(db, 'templates'), {
+          name:               name,
+          city:               weekData.city || '',
+          activeModules:      weekData.activeModules || [],
+          tallyFields:        weekData.tallyFields || [],
+          followUpRecipients: weekData.followUpRecipients || [],
+          followUpMode:       weekData.followUpMode || 'inapp',
+          followUpFormUrl:    weekData.followUpFormUrl || '',
+          survey:             weekData.survey || { type: 'inapp', newsletterOptions: [] },
+          createdBy:          currentUser.uid,
+          createdAt:          serverTimestamp(),
+        });
+
+        showToast('Template saved! ✓', 'success');
+        document.getElementById('template-modal').classList.remove('show');
+        templateSourceWeekId = null;
+      } catch (err) {
+        console.error(err);
+        showToast('Could not save template.', 'err');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '💾 Save Template';
+      }
+    });
 
     // ── Wizard ───────────────────────────────────────────────
     function startWizard(existingWeek) {
