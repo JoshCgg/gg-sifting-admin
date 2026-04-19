@@ -593,6 +593,18 @@
           <div class="field-hint">This will be visible to all Global Gates admins.</div>
           <div class="field-error" id="err-template-name">Please enter a template name.</div>
         </div>
+        <div class="field" style="margin-bottom:16px;">
+          <label>Visibility</label>
+          <div style="display:flex;gap:10px;margin-top:4px;">
+            <label style="flex:1;display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:1.5px solid var(--border);cursor:pointer;font-size:13px;font-weight:600;color:var(--text-soft);transition:all 0.15s;" id="vis-opt-private">
+              <input type="radio" name="template-visibility" value="private" checked style="accent-color:var(--indigo);"> 🔒 Private
+            </label>
+            <label style="flex:1;display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:1.5px solid var(--border);cursor:pointer;font-size:13px;font-weight:600;color:var(--text-soft);transition:all 0.15s;" id="vis-opt-public">
+              <input type="radio" name="template-visibility" value="public" style="accent-color:var(--blue-jeans);"> 🌐 Public
+            </label>
+          </div>
+          <div class="field-hint">Public templates are visible to all Global Gates admins.</div>
+        </div>
         <div class="modal-actions">
           <button class="btn-cancel" id="btn-template-cancel">Cancel</button>
           <button class="btn-primary" id="btn-template-save">💾 Save Template</button>
@@ -698,16 +710,23 @@
       const sel = document.getElementById('template-select');
       const btn = document.getElementById('btn-apply-template');
       try {
-        const snap = await getDocs(collection(db, 'templates'));
+        const [publicSnap, privateSnap] = await Promise.all([
+          getDocs(query(collection(db, 'templates'), where('visibility', '==', 'public'))),
+          getDocs(query(collection(db, 'templates'), where('createdBy', '==', currentUser.uid)))
+        ]);
+        const seen = new Set();
         const templates = [];
-        snap.forEach(d => templates.push({ id: d.id, ...d.data() }));
+        [...publicSnap.docs, ...privateSnap.docs].forEach(d => {
+          if (!seen.has(d.id)) { seen.add(d.id); templates.push({ id: d.id, ...d.data() }); }
+        });
+        templates.sort((a, b) => a.name.localeCompare(b.name));
         if (templates.length === 0) {
           sel.innerHTML = '<option value="">No templates saved yet</option>';
           btn.disabled = true;
           return;
         }
         sel.innerHTML = '<option value="">Choose a template…</option>'
-          + templates.map(t => `<option value="${t.id}">${t.name}${t.city ? ' — ' + t.city : ''}</option>`).join('');
+          + templates.map(t => `<option value="${t.id}">${t.name}${t.city ? ' — ' + t.city : ''}${t.visibility === 'private' ? ' 🔒' : ''}</option>`).join('');
         btn.disabled = false;
         // Store templates for later access
         sel._templates = templates;
@@ -754,6 +773,20 @@
         ws.newsletters = (chosen.survey.newsletterOptions || []).map(n => ({ ...n }));
         if (chosen.survey.type === 'link') {
           document.getElementById('f-survey-url').value = chosen.survey.url || '';
+        }
+      }
+
+      // Apply city
+      const cityEl = document.getElementById('f-city');
+      const knownCities = Array.from(cityEl.options).map(o => o.value);
+      if (chosen.city) {
+        if (knownCities.includes(chosen.city)) {
+          cityEl.value = chosen.city;
+          document.getElementById('city-other-wrap').style.display = 'none';
+        } else {
+          cityEl.value = 'other';
+          document.getElementById('f-city-other').value = chosen.city;
+          document.getElementById('city-other-wrap').style.display = 'block';
         }
       }
 
@@ -940,6 +973,8 @@
       templateSourceWeekId = week.id;
       document.getElementById('template-name-input').value = '';
       document.getElementById('err-template-name').style.display = 'none';
+      document.querySelectorAll('input[name="template-visibility"]').forEach(r => { r.closest('label').style.borderColor = ''; r.closest('label').style.color = ''; });
+      document.querySelector('input[name="template-visibility"][value="private"]').checked = true;
       document.getElementById('template-modal').classList.add('show');
       setTimeout(() => document.getElementById('template-name-input').focus(), 100);
     }
@@ -967,8 +1002,11 @@
         if (!weekSnap.exists()) throw new Error('Week not found');
         const weekData = weekSnap.data();
 
+        const visibility = document.querySelector('input[name="template-visibility"]:checked')?.value || 'private';
+
         await addDoc(collection(db, 'templates'), {
           name:               name,
+          visibility:         visibility,
           city:               weekData.city || '',
           activeModules:      weekData.activeModules || [],
           tallyFields:        weekData.tallyFields || [],
