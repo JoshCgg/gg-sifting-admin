@@ -768,7 +768,7 @@
       document.getElementById('template-applied-note').style.display = 'block';
     }
 
-    function clearTemplate() {
+    window.clearTemplate = function() {
       resetWizardState();
       renderModules();
       renderTallyFields();
