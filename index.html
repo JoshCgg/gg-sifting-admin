@@ -1056,8 +1056,51 @@
                   ` : ''}
                 </div>
               </div>
+              ${canEdit ? `
+              <div style="border-top:1.5px solid var(--border);padding-top:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;">
+                <div style="flex:2;min-width:160px;">
+                  <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--indigo);margin-bottom:5px;">Name</div>
+                  <input type="text" class="tq-name" value="${t.name}" maxlength="60" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'Montserrat',sans-serif;font-size:13px;" />
+                </div>
+                <div style="flex:1;min-width:130px;">
+                  <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--indigo);margin-bottom:5px;">City</div>
+                  <input type="text" class="tq-city" value="${t.city || ''}" placeholder="City" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'Montserrat',sans-serif;font-size:13px;" />
+                </div>
+                <div style="flex:1;min-width:130px;">
+                  <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--indigo);margin-bottom:5px;">Visibility</div>
+                  <select class="tq-visibility" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'Montserrat',sans-serif;font-size:13px;background:white;-webkit-appearance:none;">
+                    <option value="private" ${(t.visibility || 'private') === 'private' ? 'selected' : ''}>🔒 Private</option>
+                    <option value="public"  ${t.visibility === 'public' ? 'selected' : ''}>🌐 Public</option>
+                  </select>
+                </div>
+                <button class="btn-card-action btn-save-quick" data-id="${t.id}" style="background:var(--indigo);color:white;padding:8px 16px;">Save</button>
+              </div>
+              ` : ''}
             </div>`;
         }).join('');
+
+        // Wire quick-save buttons
+        container.querySelectorAll('.btn-save-quick').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const card = btn.closest('.template-card');
+            const name = card.querySelector('.tq-name').value.trim();
+            const city = card.querySelector('.tq-city').value.trim();
+            const visibility = card.querySelector('.tq-visibility').value;
+            if (!name) { showToast('Please enter a template name.', 'err'); return; }
+            btn.textContent = 'Saving…';
+            btn.disabled = true;
+            try {
+              await updateDoc(doc(db, 'templates', btn.dataset.id), { name, city, visibility });
+              showToast('Template updated! ✓', 'success');
+              showTemplatesScreen();
+            } catch (err) {
+              console.error(err);
+              showToast('Could not save.', 'err');
+              btn.textContent = 'Save';
+              btn.disabled = false;
+            }
+          });
+        });
 
         // Wire Edit Settings buttons
         container.querySelectorAll('.btn-edit-template').forEach(btn => {
@@ -1303,7 +1346,17 @@
 
     document.getElementById('btn-new-week').addEventListener('click', () => startWizard(null));
     document.getElementById('btn-new-week-empty').addEventListener('click', () => startWizard(null));
-    document.getElementById('btn-back-dashboard').addEventListener('click', showDashboard);
+    document.getElementById('btn-back-dashboard').addEventListener('click', () => {
+      if (editingTemplateId) {
+        editingTemplateId = null;
+        document.getElementById('f-start').closest('.field-row').style.display = '';
+        document.getElementById('f-codeword').closest('.field').style.display = '';
+        document.getElementById('template-picker').style.display = '';
+        showTemplatesScreen();
+      } else {
+        showDashboard();
+      }
+    });
     document.getElementById('topbar-home').addEventListener('click', () => {
       editingTemplateId = null;
       document.getElementById('f-start').closest('.field-row').style.display = '';
@@ -1368,9 +1421,11 @@
     function validateStep1() {
       const checks = [
         { id: 'f-label',    err: 'err-label',    test: v => v.trim().length > 0 },
-        { id: 'f-start',    err: 'err-start',    test: v => v !== '' },
-        { id: 'f-end',      err: 'err-end',      test: v => { const s = document.getElementById('f-start').value; return v !== '' && (!s || v >= s); }},
-        { id: 'f-codeword', err: 'err-codeword', test: v => /^[A-Z0-9]{4,12}$/.test(v) },
+        ...(!editingTemplateId ? [
+          { id: 'f-start',    err: 'err-start',    test: v => v !== '' },
+          { id: 'f-end',      err: 'err-end',      test: v => { const s = document.getElementById('f-start').value; return v !== '' && (!s || v >= s); }},
+          { id: 'f-codeword', err: 'err-codeword', test: v => /^[A-Z0-9]{4,12}$/.test(v) },
+        ] : []),
       ];
       let ok = true;
       checks.forEach(c => {
