@@ -253,6 +253,18 @@
     .modal-actions .btn-primary { flex: 1; justify-content: center; }
     .modal-actions .btn-cancel { flex: 1; background: white; border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 20px; font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.15s; }
     .modal-actions .btn-cancel:hover { border-color: var(--indigo); color: var(--indigo); }
+
+    /* TEMPLATE PICKER */
+    .template-picker { background: rgba(83,184,243,0.07); border: 1.5px solid rgba(83,184,243,0.25); border-radius: 12px; padding: 16px; margin-bottom: 24px; }
+    .template-picker-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue-jeans); margin-bottom: 8px; }
+    .template-picker-row { display: flex; gap: 10px; align-items: center; }
+    .template-picker-row select { flex: 1; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'Montserrat', sans-serif; font-size: 13px; color: var(--text-main); background: white; -webkit-appearance: none; appearance: none; }
+    .template-picker-row select:focus { outline: none; border-color: var(--blue-jeans); }
+    .btn-apply-template { background: var(--blue-jeans); color: white; border: none; border-radius: 8px; padding: 9px 16px; font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: background 0.15s; }
+    .btn-apply-template:hover { background: #3aa0e0; }
+    .btn-apply-template:disabled { opacity: 0.5; cursor: not-allowed; }
+    .template-applied-note { font-size: 12px; color: var(--blue-jeans); margin-top: 10px; display: none; }
+    .template-applied-note a { color: var(--orange); font-weight: 700; cursor: pointer; text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -338,6 +350,20 @@
         <div class="step-card">
           <div class="step-title">Week Basics</div>
           <div class="step-subtitle">Name, location, dates, and code word for this Sifting Week.</div>
+
+          <div class="template-picker" id="template-picker">
+            <div class="template-picker-label">🗂 Start from a template (optional)</div>
+            <div class="template-picker-row">
+              <select id="template-select">
+                <option value="">Loading templates…</option>
+              </select>
+              <button class="btn-apply-template" id="btn-apply-template" disabled>Apply</button>
+            </div>
+            <div class="template-applied-note" id="template-applied-note">
+              ✓ Template applied — modules, tally, recipients and survey pre-filled.
+              <a onclick="clearTemplate()">Clear</a>
+            </div>
+          </div>
 
           <div class="field">
             <label>Week Name</label>
@@ -668,6 +694,91 @@
       surveyMode = 'inapp';
     }
 
+    async function loadTemplates() {
+      const sel = document.getElementById('template-select');
+      const btn = document.getElementById('btn-apply-template');
+      try {
+        const snap = await getDocs(collection(db, 'templates'));
+        const templates = [];
+        snap.forEach(d => templates.push({ id: d.id, ...d.data() }));
+        if (templates.length === 0) {
+          sel.innerHTML = '<option value="">No templates saved yet</option>';
+          btn.disabled = true;
+          return;
+        }
+        sel.innerHTML = '<option value="">Choose a template…</option>'
+          + templates.map(t => `<option value="${t.id}">${t.name}${t.city ? ' — ' + t.city : ''}</option>`).join('');
+        btn.disabled = false;
+        // Store templates for later access
+        sel._templates = templates;
+      } catch (err) {
+        console.error(err);
+        sel.innerHTML = '<option value="">Could not load templates</option>';
+      }
+    }
+
+    function applyTemplate() {
+      const sel = document.getElementById('template-select');
+      const templates = sel._templates || [];
+      const chosen = templates.find(t => t.id === sel.value);
+      if (!chosen) return;
+
+      // Apply modules
+      if (chosen.activeModules && chosen.activeModules.length) {
+        ws.modules.forEach(m => { m.on = chosen.activeModules.includes(m.id); });
+      }
+
+      // Apply tally fields
+      if (chosen.tallyFields && chosen.tallyFields.length) {
+        ws.tally.forEach(t => {
+          const saved = chosen.tallyFields.find(f => f.id === t.id);
+          if (saved) t.on = saved.active;
+        });
+        ws.customTallyFields = chosen.tallyFields
+          .filter(f => f.custom)
+          .map(f => f.label);
+      }
+
+      // Apply recipients
+      if (chosen.followUpRecipients && chosen.followUpRecipients.length) {
+        ws.recipients = chosen.followUpRecipients.map(r => ({ ...r }));
+      }
+
+      // Apply follow-up mode
+      ws.followUpMode = chosen.followUpMode || 'inapp';
+      ws.followUpFormUrl = chosen.followUpFormUrl || '';
+
+      // Apply survey
+      if (chosen.survey) {
+        surveyMode = chosen.survey.type || 'inapp';
+        ws.newsletters = (chosen.survey.newsletterOptions || []).map(n => ({ ...n }));
+        if (chosen.survey.type === 'link') {
+          document.getElementById('f-survey-url').value = chosen.survey.url || '';
+        }
+      }
+
+      // Re-render all steps
+      renderModules();
+      renderTallyFields();
+      renderRecipients();
+      renderNewsletters();
+      setSurveyMode(surveyMode);
+
+      // Show applied note
+      document.getElementById('template-applied-note').style.display = 'block';
+    }
+
+    function clearTemplate() {
+      resetWizardState();
+      renderModules();
+      renderTallyFields();
+      renderRecipients();
+      renderNewsletters();
+      setSurveyMode('inapp');
+      document.getElementById('template-select').value = '';
+      document.getElementById('template-applied-note').style.display = 'none';
+    }
+
     // ── Utilities ────────────────────────────────────────────
     function showToast(msg, type = '') {
       const t = document.getElementById('toast');
@@ -884,6 +995,7 @@
     // ── Wizard ───────────────────────────────────────────────
     function startWizard(existingWeek) {
       resetWizardState();
+      loadTemplates();
       editingWeekId = existingWeek ? existingWeek.id : null;
 
       if (existingWeek) {
@@ -951,6 +1063,7 @@
         document.getElementById('f-codeword').value = genCodeWord();
         document.getElementById('f-survey-url').value = '';
         document.getElementById('btn-launch').textContent = '🚀 Launch Week';
+        document.getElementById('template-applied-note').style.display = 'none';
       }
 
       document.querySelectorAll('.field-error').forEach(el => el.style.display = 'none');
@@ -965,6 +1078,7 @@
     document.getElementById('btn-new-week').addEventListener('click', () => startWizard(null));
     document.getElementById('btn-new-week-empty').addEventListener('click', () => startWizard(null));
     document.getElementById('btn-back-dashboard').addEventListener('click', showDashboard);
+    document.getElementById('btn-apply-template').addEventListener('click', applyTemplate);
 
     document.getElementById('btn-regen').addEventListener('click', () => {
       document.getElementById('f-codeword').value = genCodeWord();
