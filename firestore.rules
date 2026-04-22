@@ -2,53 +2,72 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function isAdmin() { return request.auth != null; }
-    function isSuperAdmin() {
-      return isAdmin() &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'super_admin';
+    // ── Auth helpers ───────────────────────────────────────────────────
+    function isVerifiedGGUser() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email.lower().matches('.*@globalgates\\.info');
     }
-    function ownsWeek(weekData) { return isAdmin() && weekData.createdBy == request.auth.uid; }
 
+    function isSuperAdmin() {
+      return isVerifiedGGUser()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'super_admin';
+    }
+
+    function ownsWeek(weekData) {
+      return isVerifiedGGUser() && weekData.createdBy == request.auth.uid;
+    }
+
+    // ── users ──────────────────────────────────────────────────────────
     match /users/{userId} {
       allow read: if request.auth != null && request.auth.uid == userId;
-      allow read: if isSuperAdmin();
-      allow write: if isSuperAdmin();
+      allow read, write: if isSuperAdmin();
     }
 
+    // ── weeks ──────────────────────────────────────────────────────────
+    // ⚠️ TEMPORARY: field app reads weeks directly (no auth).
+    // Change to isVerifiedGGUser() when Cloud Function codeword lookup is built.
     match /weeks/{weekId} {
       allow read: if true;
-      allow create: if isAdmin();
+      allow create: if isVerifiedGGUser();
       allow update, delete: if isSuperAdmin() || ownsWeek(resource.data);
     }
 
+    // ── contacts ──────────────────────────────────────────────────────
+    // ⚠️ TEMPORARY: field app submits without auth.
+    // Change to false when Cloud Function submission is built.
     match /contacts/{contactId} {
       allow create: if true;
-      allow read: if isAdmin();
+      allow read: if isVerifiedGGUser();
       allow delete: if isSuperAdmin();
       allow update: if false;
     }
 
+    // ── tallies ────────────────────────────────────────────────────────
     match /tallies/{tallyId} {
       allow create: if true;
-      allow read: if isAdmin();
+      allow read: if isVerifiedGGUser();
       allow delete: if isSuperAdmin();
       allow update: if false;
     }
 
+    // ── surveyResponses ────────────────────────────────────────────────
     match /surveyResponses/{responseId} {
       allow create: if true;
-      allow read: if isAdmin();
+      allow read: if isVerifiedGGUser();
       allow delete: if isSuperAdmin();
       allow update: if false;
     }
 
+    // ── modules ────────────────────────────────────────────────────────
     match /modules/{moduleId} {
-      allow read: if true;
+      allow read: if isVerifiedGGUser();
       allow write: if isSuperAdmin();
     }
 
+    // ── organizations ──────────────────────────────────────────────────
     match /organizations/{orgId} {
-      allow read: if isAdmin();
+      allow read: if isVerifiedGGUser();
       allow write: if isSuperAdmin();
     }
   }
