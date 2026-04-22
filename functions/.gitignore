@@ -1,0 +1,4 @@
+node_modules/
+*.local
+service-account.json
+.env.gg-sifting-admin

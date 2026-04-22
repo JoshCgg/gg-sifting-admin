@@ -279,6 +279,63 @@
     .btn-delete-template:hover { background: #b91c1c; color: white; }
     .btn-edit-template { background: rgba(27,69,106,0.08); color: var(--indigo); }
     .btn-edit-template:hover { background: var(--indigo); color: white; }
+
+    /* PROFILE PANEL */
+    .profile-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 300; display: none; }
+    .profile-overlay.show { display: block; }
+    .profile-panel {
+      position: fixed; top: 0; right: 0; bottom: 0; width: 100%; max-width: 360px;
+      background: white; z-index: 301; box-shadow: -8px 0 32px rgba(0,0,0,0.15);
+      display: flex; flex-direction: column;
+      transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+    }
+    .profile-overlay.show .profile-panel { transform: translateX(0); }
+    .profile-header {
+      background: var(--indigo); padding: 24px 20px 20px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .profile-header-avatar {
+      width: 48px; height: 48px; border-radius: 50%; background: var(--blue-jeans);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 700; color: white; flex-shrink: 0; overflow: hidden;
+    }
+    .profile-header-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .profile-header-name { font-size: 16px; font-weight: 700; color: white; }
+    .profile-header-email { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+    .profile-body { flex: 1; padding: 28px 20px; overflow-y: auto; }
+    .profile-section-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--blue-jeans); margin-bottom: 12px;
+    }
+    .profile-sheet-hint {
+      font-size: 12px; color: var(--text-soft); margin-bottom: 12px; line-height: 1.6;
+    }
+    .profile-sheet-hint code {
+      background: var(--bright-gray); padding: 1px 6px; border-radius: 4px;
+      font-size: 11px; color: var(--indigo); word-break: break-all;
+    }
+    .profile-input {
+      width: 100%; padding: 11px 14px; border: 1.5px solid var(--border);
+      border-radius: 10px; font-family: 'Montserrat', sans-serif; font-size: 13px;
+      color: var(--text-main); background: white; margin-bottom: 10px;
+    }
+    .profile-input:focus { outline: none; border-color: var(--blue-jeans); box-shadow: 0 0 0 3px rgba(83,184,243,0.15); }
+    .btn-save-sheet {
+      width: 100%; background: var(--indigo); color: white; border: none;
+      border-radius: 10px; padding: 12px; font-family: 'Montserrat', sans-serif;
+      font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.15s;
+    }
+    .btn-save-sheet:hover { background: #163a5a; }
+    .btn-save-sheet:disabled { opacity: 0.6; cursor: not-allowed; }
+    .profile-footer { padding: 16px 20px; border-top: 1px solid var(--border); }
+    .btn-signout-panel {
+      width: 100%; background: white; border: 1.5px solid var(--border);
+      border-radius: 10px; padding: 11px; font-family: 'Montserrat', sans-serif;
+      font-size: 14px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.15s;
+    }
+    .btn-signout-panel:hover { border-color: var(--error); color: var(--error); }
+    .user-pill { cursor: pointer; transition: background 0.15s; }
+    .user-pill:hover { background: rgba(255,255,255,0.16); }
   </style>
 </head>
 <body>
@@ -322,7 +379,6 @@
           <div class="user-avatar" id="user-avatar-wrap"><span id="user-initials">?</span></div>
           <span class="user-name" id="user-display-name">—</span>
         </div>
-        <button class="btn-signout" id="btn-signout">Sign out</button>
       </div>
     </nav>
 
@@ -644,6 +700,37 @@
       </div>
     </div>
 
+    <!-- PROFILE PANEL -->
+    <div class="profile-overlay" id="profile-overlay">
+      <div class="profile-panel" id="profile-panel">
+        <div class="profile-header">
+          <div class="profile-header-avatar" id="profile-avatar"></div>
+          <div>
+            <div class="profile-header-name" id="profile-name">—</div>
+            <div class="profile-header-email" id="profile-email">—</div>
+          </div>
+        </div>
+        <div class="profile-body">
+          <div class="profile-section-title">Google Sheet Integration</div>
+          <p class="profile-sheet-hint">
+            Paste your Google Sheet ID below — contacts you collect will automatically appear there.
+            Find it in your Sheet's URL:<br/>
+            <code>docs.google.com/spreadsheets/d/<strong>YOUR-ID-HERE</strong>/edit</code>
+          </p>
+          <input
+            type="text"
+            class="profile-input"
+            id="profile-sheet-id"
+            placeholder="Paste Sheet ID…"
+          />
+          <button class="btn-save-sheet" id="btn-save-sheet">Save Sheet ID</button>
+        </div>
+        <div class="profile-footer">
+          <button class="btn-signout-panel" id="btn-signout-panel">Sign Out</button>
+        </div>
+      </div>
+    </div>
+
   </div><!-- /app -->
 
   <div class="toast" id="toast"></div>
@@ -884,7 +971,6 @@
       }
     });
 
-    document.getElementById('btn-signout').addEventListener('click', () => signOut(auth));
 
     onAuthStateChanged(auth, user => {
       if (user && user.email.toLowerCase().endsWith('@' + ALLOWED_DOMAIN)) {
@@ -1685,6 +1771,80 @@
         btn.textContent = editingTemplateId ? '💾 Update Template' : editingWeekId ? '💾 Save Changes' : '🚀 Launch Week';
       }
     });
+
+    // ── Profile Panel ─────────────────────────────────────────
+    function openProfilePanel() {
+      const overlay = document.getElementById('profile-overlay');
+      const name    = currentUser.displayName || currentUser.email.split('@')[0];
+      const parts   = name.split(' ');
+      const initials = parts.length >= 2 ? parts[0][0] + parts[parts.length-1][0] : name.slice(0,2);
+
+      // Set header info
+      document.getElementById('profile-name').textContent  = name;
+      document.getElementById('profile-email').textContent = currentUser.email;
+
+      // Avatar
+      const av = document.getElementById('profile-avatar');
+      if (currentUser.photoURL) {
+        av.innerHTML = `<img src="${currentUser.photoURL}" alt="${name}" />`;
+      } else {
+        av.textContent = initials.toUpperCase();
+      }
+
+      // Load existing sheetId if set
+      const input = document.getElementById('profile-sheet-id');
+      input.value = '';
+      getDoc(doc(db, 'users', currentUser.uid)).then(snap => {
+        if (snap.exists() && snap.data().sheetId) {
+          input.value = snap.data().sheetId;
+        }
+      }).catch(() => {});
+
+      overlay.classList.add('show');
+    }
+
+    function closeProfilePanel() {
+      document.getElementById('profile-overlay').classList.remove('show');
+    }
+
+    // Open on user pill click
+    document.querySelector('.user-pill').addEventListener('click', openProfilePanel);
+
+    // Close on overlay background click
+    document.getElementById('profile-overlay').addEventListener('click', e => {
+      if (e.target === document.getElementById('profile-overlay')) closeProfilePanel();
+    });
+
+    // Save sheet ID
+    document.getElementById('btn-save-sheet').addEventListener('click', async () => {
+      const btn     = document.getElementById('btn-save-sheet');
+      const sheetId = document.getElementById('profile-sheet-id').value.trim();
+      if (!sheetId) { showToast('Please paste your Sheet ID.', 'err'); return; }
+
+      btn.disabled = true;
+      btn.textContent = 'Saving…';
+
+      try {
+        const { setDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+        await setDoc(doc(db, 'users', currentUser.uid), {
+          sheetId:     sheetId,
+          email:       currentUser.email,
+          displayName: currentUser.displayName || '',
+          updatedAt:   new Date().toISOString(),
+        }, { merge: true });
+        showToast('Sheet ID saved! ✓', 'success');
+        closeProfilePanel();
+      } catch (err) {
+        console.error(err);
+        showToast('Could not save — check console.', 'err');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Save Sheet ID';
+      }
+    });
+
+    // Sign out from panel
+    document.getElementById('btn-signout-panel').addEventListener('click', () => signOut(auth));
 
   </script>
 </body>

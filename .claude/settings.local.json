@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(firebase deploy:*)",
+      "Bash(git -C \"b:/global-gates-digital-projects/gg-sifting-admin\" pull)",
+      "Bash(git -C \"b:/global-gates-digital-projects/gg-sifting-admin\" status)",
+      "Bash(git -C \"b:/global-gates-digital-projects/gg-sifting-app-v1\" status)",
+      "Bash(git -C \"b:/global-gates-digital-projects/gg-sifting-app-v1\" pull)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(firebase --version)",
+      "Bash(firebase projects:list)"
+    ]
+  }
+}
