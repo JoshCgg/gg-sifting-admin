@@ -307,13 +307,6 @@
       font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
       text-transform: uppercase; color: var(--blue-jeans); margin-bottom: 12px;
     }
-    .profile-sheet-hint {
-      font-size: 12px; color: var(--text-soft); margin-bottom: 12px; line-height: 1.6;
-    }
-    .profile-sheet-hint code {
-      background: var(--bright-gray); padding: 1px 6px; border-radius: 4px;
-      font-size: 11px; color: var(--indigo); word-break: break-all;
-    }
     .profile-input {
       width: 100%; padding: 11px 14px; border: 1.5px solid var(--border);
       border-radius: 10px; font-family: 'Montserrat', sans-serif; font-size: 13px;
@@ -713,18 +706,13 @@
         </div>
         <div class="profile-body">
           <div class="profile-section-title">Google Sheet Integration</div>
-          <p class="profile-sheet-hint">
-            Paste your Google Sheet ID below — contacts you collect will automatically appear there.
-            Find it in your Sheet's URL:<br/>
-            <code>docs.google.com/spreadsheets/d/<strong>YOUR-ID-HERE</strong>/edit</code>
-          </p>
           <input
             type="text"
             class="profile-input"
             id="profile-sheet-id"
             placeholder="Paste Sheet ID…"
           />
-          <p class="profile-sheet-help">Create a new Google Sheet, then share it with <strong>sheets-writer@gg-sifting-admin.iam.gserviceaccount.com</strong> as Editor. Paste the Sheet ID from the URL here. Every contact logged during your weeks will automatically appear in your sheet.</p>
+          <p class="profile-sheet-help">Create a new Google Sheet. Share it with <strong>sheets-writer@gg-sifting-admin.iam.gserviceaccount.com</strong> as Editor. Then paste the Sheet ID from the sheet's URL here — it's the long string between /d/ and /edit.</p>
           <button class="btn-save-sheet" id="btn-save-sheet">Save Sheet ID</button>
         </div>
         <div class="profile-footer">
