@@ -44,11 +44,11 @@ exports.onContactCreated = onDocumentCreated(
   const row = [
     contact.clientDate || "",
     weekData.name || "",
-    contact.city || "",
+    weekData.city || "",
     contact.codeWord || "",
     contact.name || "",
     contact.phone || "",
-    contact.email || "",
+    "",
     contact.gospelResponse || "",
     contact.followUpRequested ? "Yes" : "No",
     contact.notes || "",
@@ -56,6 +56,21 @@ exports.onContactCreated = onDocumentCreated(
 
   // 5. Helper to append a row to a given sheet
   async function appendToSheet(sheetId, label) {
+    const existing = await sheets.spreadsheets.values.get({
+      spreadsheetId: sheetId,
+      range: "Sheet1!A1",
+    });
+    if (!existing.data.values || existing.data.values.length === 0) {
+      const headers = ["Date", "Week Name", "City", "Code Word", "Name", "Phone", "Email", "Gospel Response", "Follow-Up?", "Notes"];
+      await sheets.spreadsheets.values.append({
+        spreadsheetId: sheetId,
+        range: "Sheet1!A1",
+        valueInputOption: "RAW",
+        insertDataOption: "INSERT_ROWS",
+        requestBody: { values: [headers] },
+      });
+      console.log("Header row inserted into " + label + " sheet (" + sheetId + ")");
+    }
     await sheets.spreadsheets.values.append({
       spreadsheetId: sheetId,
       range: "Sheet1!A1",
