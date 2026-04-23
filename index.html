@@ -320,6 +320,7 @@
       color: var(--text-main); background: white; margin-bottom: 10px;
     }
     .profile-input:focus { outline: none; border-color: var(--blue-jeans); box-shadow: 0 0 0 3px rgba(83,184,243,0.15); }
+    .profile-sheet-help { font-size: 11px; color: rgba(255,255,255,0.45); line-height: 1.5; margin: 8px 0 14px; }
     .btn-save-sheet {
       width: 100%; background: var(--indigo); color: white; border: none;
       border-radius: 10px; padding: 12px; font-family: 'Montserrat', sans-serif;
@@ -723,6 +724,7 @@
             id="profile-sheet-id"
             placeholder="Paste Sheet ID…"
           />
+          <p class="profile-sheet-help">Create a new Google Sheet, then share it with <strong>sheets-writer@gg-sifting-admin.iam.gserviceaccount.com</strong> as Editor. Paste the Sheet ID from the URL here. Every contact logged during your weeks will automatically appear in your sheet.</p>
           <button class="btn-save-sheet" id="btn-save-sheet">Save Sheet ID</button>
         </div>
         <div class="profile-footer">
