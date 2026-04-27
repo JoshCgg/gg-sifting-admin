@@ -280,6 +280,52 @@
     .btn-edit-template { background: rgba(27,69,106,0.08); color: var(--indigo); }
     .btn-edit-template:hover { background: var(--indigo); color: white; }
 
+    /* WEEK DETAIL SCREEN */
+    #screen-week-detail { display: none; padding: 32px 24px; max-width: 800px; margin: 0 auto; width: 100%; animation: fadeUp 0.4s cubic-bezier(0.22,1,0.36,1) both; }
+
+    .detail-back-row { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+    .btn-detail-back { background: white; border: 1.5px solid var(--border); border-radius: 10px; padding: 9px 16px; font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 600; color: var(--text-soft); cursor: pointer; transition: all 0.15s; }
+    .btn-detail-back:hover { border-color: var(--indigo); color: var(--indigo); }
+    .detail-week-name { font-size: 20px; font-weight: 800; color: var(--indigo); }
+    .detail-week-meta { font-size: 13px; color: var(--text-soft); margin-top: 2px; }
+
+    .detail-section { background: white; border-radius: 14px; padding: 20px 24px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(27,69,106,0.05); margin-bottom: 16px; }
+    .detail-section-title { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--blue-jeans); margin-bottom: 16px; }
+
+    .tally-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+    .tally-stat { display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--bright-gray); border-radius: 10px; padding: 14px 10px; text-align: center; }
+    .tally-stat-number { font-size: 28px; font-weight: 800; color: var(--indigo); line-height: 1; }
+    .tally-stat-label { font-size: 11px; font-weight: 600; color: var(--text-soft); margin-top: 5px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .tally-empty { font-size: 13px; color: var(--text-soft); font-style: italic; }
+
+    .contact-row { border-bottom: 1px solid var(--border); padding: 14px 0; cursor: pointer; transition: background 0.1s; }
+    .contact-row:last-child { border-bottom: none; }
+    .contact-row-main { display: flex; align-items: center; gap: 12px; }
+    .contact-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .contact-dot.green  { background: #16a34a; }
+    .contact-dot.yellow { background: #d97706; }
+    .contact-dot.red    { background: #dc2626; }
+    .contact-dot.na     { background: #94a3b8; }
+    .contact-row-info { flex: 1; min-width: 0; }
+    .contact-row-name { font-size: 14px; font-weight: 700; color: var(--indigo); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .contact-row-sub { font-size: 12px; color: var(--text-soft); margin-top: 2px; }
+    .contact-row-date { font-size: 11px; color: var(--text-soft); white-space: nowrap; flex-shrink: 0; }
+    .contact-row-actions { display: flex; gap: 8px; margin-top: 10px; }
+    .btn-share-contact { background: rgba(83,184,243,0.10); border: none; border-radius: 8px; padding: 6px 14px; font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 700; color: #1a7ab5; cursor: pointer; transition: all 0.15s; }
+    .btn-share-contact:hover { background: var(--blue-jeans); color: white; }
+
+    .contact-detail-expand { margin-top: 12px; padding: 14px; background: var(--bright-gray); border-radius: 10px; display: none; }
+    .contact-detail-expand.open { display: block; }
+    .contact-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; }
+    @media (max-width: 500px) { .contact-detail-grid { grid-template-columns: 1fr; } }
+    .contact-detail-item { display: flex; flex-direction: column; gap: 2px; }
+    .contact-detail-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-soft); }
+    .contact-detail-value { font-size: 13px; font-weight: 600; color: var(--text-main); }
+    .contact-detail-notes { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(27,69,106,0.10); }
+    .contacts-empty { font-size: 13px; color: var(--text-soft); font-style: italic; padding: 8px 0; }
+
+    .detail-loading { font-size: 13px; color: var(--text-soft); font-style: italic; padding: 8px 0; }
+
     /* PROFILE PANEL */
     .profile-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 300; display: none; }
     .profile-overlay.show { display: block; }
@@ -664,6 +710,29 @@
       </div>
     </div>
 
+    <!-- WEEK DETAIL SCREEN -->
+    <div id="screen-week-detail">
+      <div class="detail-back-row">
+        <button class="btn-detail-back" id="btn-week-detail-back">← Weeks</button>
+        <div>
+          <div class="detail-week-name" id="detail-week-name">—</div>
+          <div class="detail-week-meta" id="detail-week-meta">—</div>
+        </div>
+      </div>
+
+      <!-- Tally Totals -->
+      <div class="detail-section">
+        <div class="detail-section-title">📊 Tally Totals</div>
+        <div id="detail-tally-content"><div class="detail-loading">Loading tallies…</div></div>
+      </div>
+
+      <!-- Contacts -->
+      <div class="detail-section">
+        <div class="detail-section-title">👤 Contacts <span id="detail-contact-count" style="font-weight:400;color:var(--text-soft);text-transform:none;letter-spacing:0;font-size:12px;"></span></div>
+        <div id="detail-contacts-content"><div class="detail-loading">Loading contacts…</div></div>
+      </div>
+    </div>
+
     <!-- SAVE AS TEMPLATE MODAL -->
     <div class="modal-overlay" id="template-modal">
       <div class="modal-card">
@@ -1017,6 +1086,7 @@
               </div>
               <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap;">
                 <span class="week-card-code">${w.codeWord}</span>
+                <button class="btn-card-action btn-view-week" data-id="${w.id}" style="background:rgba(83,184,243,0.10);color:#1a7ab5;">View</button>
                 <button class="btn-card-action btn-template" data-id="${w.id}">Use as Template</button>
                 <button class="btn-card-action btn-edit" data-id="${w.id}">Edit</button>
                 ${w.status !== 'closed'
@@ -1026,6 +1096,14 @@
               </div>
             </div>
           `).join('');
+
+          // Wire up View buttons
+          grid.querySelectorAll('.btn-view-week').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const week = weeks.find(w => w.id === btn.dataset.id);
+              if (week) showWeekDetail(week);
+            });
+          });
 
           // Wire up Edit buttons
           grid.querySelectorAll('.btn-edit').forEach(btn => {
@@ -1760,6 +1838,206 @@
         btn.disabled = false;
         btn.textContent = editingTemplateId ? '💾 Update Template' : editingWeekId ? '💾 Save Changes' : '🚀 Launch Week';
       }
+    });
+
+    // ── Week Detail ───────────────────────────────────────────
+    let currentDetailWeek = null;
+
+    function showWeekDetail(week) {
+      currentDetailWeek = week;
+      document.getElementById('screen-dashboard').style.display   = 'none';
+      document.getElementById('screen-wizard').style.display      = 'none';
+      document.getElementById('screen-templates').style.display   = 'none';
+      document.getElementById('screen-week-detail').style.display = 'block';
+
+      document.getElementById('detail-week-name').textContent = week.label;
+      document.getElementById('detail-week-meta').textContent =
+        `📍 ${week.city}  ·  📅 ${formatDate(week.startDate)} – ${formatDate(week.endDate)}  ·  🔑 ${week.codeWord}`;
+
+      loadDetailTallies(week);
+      loadDetailContacts(week);
+    }
+
+    async function loadDetailTallies(week) {
+      const el = document.getElementById('detail-tally-content');
+      el.innerHTML = '<div class="detail-loading">Loading tallies…</div>';
+      try {
+        const snap = await getDocs(query(collection(db, 'tallies'), where('weekId', '==', week.id)));
+        if (snap.empty) {
+          el.innerHTML = '<div class="tally-empty">No tallies submitted yet.</div>';
+          return;
+        }
+
+        // Aggregate all tally docs
+        const totals = {};
+        const TALLY_LABELS = {
+          doors: 'Doors', gospel: 'Gospel', prayer: 'Prayer', pop: 'POP',
+          films: 'Films', studies: 'Studies', salvations: 'Salvations',
+          booklets: 'Booklets', infocards: 'Info Cards', pof: 'Prof. of Faith'
+        };
+
+        snap.forEach(d => {
+          const data = d.data();
+          Object.keys(TALLY_LABELS).forEach(key => {
+            if (typeof data[key] === 'number') {
+              totals[key] = (totals[key] || 0) + data[key];
+            }
+          });
+        });
+
+        const activeKeys = Object.keys(totals).filter(k => totals[k] > 0);
+        if (!activeKeys.length) {
+          el.innerHTML = '<div class="tally-empty">All submitted tallies are zero.</div>';
+          return;
+        }
+
+        el.innerHTML = `
+          <div class="tally-grid">
+            ${activeKeys.map(k => `
+              <div class="tally-stat">
+                <div class="tally-stat-number">${totals[k]}</div>
+                <div class="tally-stat-label">${TALLY_LABELS[k] || k}</div>
+              </div>
+            `).join('')}
+          </div>
+          <div style="font-size:11px;color:var(--text-soft);margin-top:12px;">
+            From ${snap.size} tally submission${snap.size !== 1 ? 's' : ''}
+          </div>`;
+      } catch (err) {
+        console.error(err);
+        el.innerHTML = '<div class="tally-empty">Could not load tallies.</div>';
+      }
+    }
+
+    async function loadDetailContacts(week) {
+      const el = document.getElementById('detail-contacts-content');
+      const countEl = document.getElementById('detail-contact-count');
+      el.innerHTML = '<div class="detail-loading">Loading contacts…</div>';
+      try {
+        const snap = await getDocs(query(
+          collection(db, 'contacts'),
+          where('weekId', '==', week.id),
+          orderBy('submittedAt', 'desc')
+        ));
+
+        if (snap.empty) {
+          countEl.textContent = '';
+          el.innerHTML = '<div class="contacts-empty">No contacts submitted yet.</div>';
+          return;
+        }
+
+        const contacts = [];
+        snap.forEach(d => contacts.push({ id: d.id, ...d.data() }));
+        countEl.textContent = `· ${contacts.length} total`;
+
+        el.innerHTML = contacts.map((c, i) => {
+          const dot = c.gospelResponse || c.response || 'na';
+          const date = c.submittedAt
+            ? new Date(c.submittedAt).toLocaleDateString('en-US', { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' })
+            : '—';
+          const followup = c.followUpRequested || c.contactInfo ? '📞 Follow-up requested' : '';
+          const lang = c.language || c.lang || '';
+          return `
+            <div class="contact-row" data-idx="${i}">
+              <div class="contact-row-main">
+                <div class="contact-dot ${dot}"></div>
+                <div class="contact-row-info">
+                  <div class="contact-row-name">${c.name || 'Unknown'}</div>
+                  <div class="contact-row-sub">${[c.phone, lang, followup].filter(Boolean).join(' · ')}</div>
+                </div>
+                <div class="contact-row-date">${date}</div>
+              </div>
+              <div class="contact-detail-expand" id="contact-expand-${i}">
+                <div class="contact-detail-grid">
+                  <div class="contact-detail-item">
+                    <span class="contact-detail-label">Phone</span>
+                    <span class="contact-detail-value">${c.phone || '—'}</span>
+                  </div>
+                  <div class="contact-detail-item">
+                    <span class="contact-detail-label">Gospel Response</span>
+                    <span class="contact-detail-value">${
+                      dot === 'green' ? '🟢 Open / Believed' :
+                      dot === 'yellow' ? '🟡 Somewhat open' :
+                      dot === 'red' ? '🔴 Not open' : '—'
+                    }</span>
+                  </div>
+                  <div class="contact-detail-item">
+                    <span class="contact-detail-label">Language / Background</span>
+                    <span class="contact-detail-value">${lang || '—'}</span>
+                  </div>
+                  <div class="contact-detail-item">
+                    <span class="contact-detail-label">Encounter Type</span>
+                    <span class="contact-detail-value">${c.type || c.encounterType || '—'}</span>
+                  </div>
+                  <div class="contact-detail-item">
+                    <span class="contact-detail-label">Logged by</span>
+                    <span class="contact-detail-value">${c.loggerName || '—'}</span>
+                  </div>
+                  <div class="contact-detail-item">
+                    <span class="contact-detail-label">Follow-Up</span>
+                    <span class="contact-detail-value">${c.followUpRequested || c.contactInfo ? 'Yes' : 'No'}</span>
+                  </div>
+                </div>
+                ${c.notes ? `<div class="contact-detail-notes"><span class="contact-detail-label">Notes</span><div class="contact-detail-value" style="margin-top:4px;font-weight:400;line-height:1.5;">${c.notes}</div></div>` : ''}
+                <div class="contact-row-actions">
+                  <button class="btn-share-contact" data-idx="${i}">📤 Share Contact</button>
+                </div>
+              </div>
+            </div>`;
+        }).join('');
+
+        // Store contacts on the element for share access
+        el._contacts = contacts;
+
+        // Toggle expand on row click
+        el.querySelectorAll('.contact-row').forEach(row => {
+          row.addEventListener('click', e => {
+            if (e.target.classList.contains('btn-share-contact')) return;
+            const idx = row.dataset.idx;
+            const expand = document.getElementById('contact-expand-' + idx);
+            expand.classList.toggle('open');
+          });
+        });
+
+        // Share button
+        el.querySelectorAll('.btn-share-contact').forEach(btn => {
+          btn.addEventListener('click', e => {
+            e.stopPropagation();
+            const c = el._contacts[+btn.dataset.idx];
+            const dot = c.gospelResponse || c.response || 'na';
+            const responseLabel =
+              dot === 'green'  ? '🟢 Open / Believed' :
+              dot === 'yellow' ? '🟡 Somewhat open' :
+              dot === 'red'    ? '🔴 Not open' : '—';
+            const text = [
+              `📋 Follow-Up Contact — ${week.label}`,
+              ``,
+              `Name: ${c.name || '—'}`,
+              `Phone: ${c.phone || '—'}`,
+              c.language || c.lang ? `Language: ${c.language || c.lang}` : null,
+              `Gospel Response: ${responseLabel}`,
+              c.notes ? `Notes: ${c.notes}` : null,
+              ``,
+              `Logged via GG Sifting App`,
+            ].filter(l => l !== null).join('\n');
+
+            if (navigator.share) {
+              navigator.share({ title: 'Follow-Up Contact', text }).catch(() => {});
+            } else {
+              navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard ✓', 'success'));
+            }
+          });
+        });
+
+      } catch (err) {
+        console.error(err);
+        el.innerHTML = '<div class="contacts-empty">Could not load contacts.</div>';
+      }
+    }
+
+    document.getElementById('btn-week-detail-back').addEventListener('click', () => {
+      document.getElementById('screen-week-detail').style.display = 'none';
+      showDashboard();
     });
 
     // ── Profile Panel ─────────────────────────────────────────
