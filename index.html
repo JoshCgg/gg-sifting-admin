@@ -2031,7 +2031,10 @@
 
       } catch (err) {
         console.error(err);
-        el.innerHTML = '<div class="contacts-empty">Could not load contacts.</div>';
+        const msg = err.message && err.message.includes('index')
+          ? 'Firestore index still building — try again in a few minutes.'
+          : 'Could not load contacts.';
+        el.innerHTML = `<div class="contacts-empty">${msg}</div>`;
       }
     }
 
