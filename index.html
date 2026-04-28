@@ -720,6 +720,22 @@
         </div>
       </div>
 
+      <!-- Week Controls -->
+      <div class="detail-section" id="detail-controls-section">
+        <div class="detail-section-title">⚙️ Week Controls</div>
+        <div id="detail-controls-content" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+          <!-- buttons injected by showWeekDetail() -->
+        </div>
+      </div>
+
+      <!-- Co-Leaders -->
+      <div class="detail-section">
+        <div class="detail-section-title">👥 Co-Leaders</div>
+        <div id="detail-coleaders-content">
+          <div class="detail-loading">Loading…</div>
+        </div>
+      </div>
+
       <!-- Tally Totals -->
       <div class="detail-section">
         <div class="detail-section-title">📊 Tally Totals</div>
@@ -1062,7 +1078,7 @@
       document.getElementById('screen-templates').style.display  = 'none';
       if (!currentUser) return;
       try {
-        const q    = query(collection(db, 'weeks'), where('createdBy', '==', currentUser.uid));
+        const q    = query(collection(db, 'weeks'), where('createdBy', '==', currentUser.uid), where('status', '!=', 'archived'));
         const snap = await getDocs(q);
         const weeks = [];
         snap.forEach(doc => weeks.push({ id: doc.id, ...doc.data() }));
@@ -1854,9 +1870,201 @@
       document.getElementById('detail-week-meta').textContent =
         `📍 ${week.city}  ·  📅 ${formatDate(week.startDate)} – ${formatDate(week.endDate)}  ·  🔑 ${week.codeWord}`;
 
+      renderDetailControls(week);
+      loadDetailCoLeaders(week);
       loadDetailTallies(week);
       loadDetailContacts(week);
     }
+
+    function renderDetailControls(week) {
+      const el = document.getElementById('detail-controls-content');
+      const status = week.status || 'active';
+
+      let badgeHtml = `<span class="status-badge ${status}" style="margin-right:8px;">${status}</span>`;
+
+      let buttonsHtml = '';
+      if (status === 'active') {
+        buttonsHtml = `
+          <button class="btn-card-action btn-close-week" id="detail-btn-close">Close Week</button>
+          <button class="btn-card-action" id="detail-btn-archive" style="background:rgba(107,122,141,0.10);color:#6b7a8d;">Archive</button>
+          <button class="btn-card-action btn-edit" id="detail-btn-edit">Edit</button>
+        `;
+      } else if (status === 'closed') {
+        buttonsHtml = `
+          <button class="btn-card-action btn-reopen" id="detail-btn-reopen">Reopen Week</button>
+          <button class="btn-card-action" id="detail-btn-archive" style="background:rgba(107,122,141,0.10);color:#6b7a8d;">Archive</button>
+          <button class="btn-card-action btn-edit" id="detail-btn-edit">Edit</button>
+        `;
+      } else if (status === 'draft') {
+        buttonsHtml = `
+          <button class="btn-card-action btn-reopen" id="detail-btn-activate" style="background:rgba(34,197,94,0.10);color:#16a34a;">Activate</button>
+          <button class="btn-card-action btn-edit" id="detail-btn-edit">Edit</button>
+        `;
+      } else if (status === 'archived') {
+        buttonsHtml = `
+          <button class="btn-card-action btn-reopen" id="detail-btn-reopen">Unarchive</button>
+        `;
+      }
+
+      el.innerHTML = badgeHtml + buttonsHtml;
+
+      el.querySelector('#detail-btn-close')?.addEventListener('click', async () => {
+        if (!confirm('Close this week? The field team will no longer be able to submit contacts using this code word.')) return;
+        await updateDetailWeekStatus('closed');
+      });
+      el.querySelector('#detail-btn-reopen')?.addEventListener('click', async () => {
+        await updateDetailWeekStatus('active');
+      });
+      el.querySelector('#detail-btn-activate')?.addEventListener('click', async () => {
+        await updateDetailWeekStatus('active');
+      });
+      el.querySelector('#detail-btn-archive')?.addEventListener('click', async () => {
+        if (!confirm('Archive this week? It will be hidden from your main dashboard. You can unarchive it anytime from the detail view.')) return;
+        await updateDetailWeekStatus('archived');
+      });
+      el.querySelector('#detail-btn-edit')?.addEventListener('click', () => {
+        document.getElementById('screen-week-detail').style.display = 'none';
+        startWizard(currentDetailWeek);
+      });
+    }
+
+    async function updateDetailWeekStatus(newStatus) {
+      if (!currentDetailWeek) return;
+      try {
+        await updateDoc(doc(db, 'weeks', currentDetailWeek.id), { status: newStatus });
+        currentDetailWeek.status = newStatus;
+        renderDetailControls(currentDetailWeek);
+        showToast(`Week ${newStatus}. ✓`, 'success');
+      } catch (err) {
+        console.error(err);
+        showToast('Could not update week status.', 'err');
+      }
+    }
+
+    async function loadDetailCoLeaders(week) {
+      const el = document.getElementById('detail-coleaders-content');
+      const isOwner = week.createdBy === currentUser.uid;
+      const coLeaders = week.coLeaders || [];
+
+      // Render existing co-leaders list
+      async function renderCoLeaderList() {
+        const current = currentDetailWeek.coLeaders || [];
+        if (!current.length) {
+          el.innerHTML = `
+            <div style="font-size:13px;color:var(--text-soft);font-style:italic;margin-bottom:12px;">
+              No co-leaders added yet.
+            </div>`;
+        } else {
+          // Fetch display names from users collection
+          const nameMap = {};
+          await Promise.all(current.map(async uid => {
+            try {
+              const snap = await getDoc(doc(db, 'users', uid));
+              nameMap[uid] = snap.exists() ? (snap.data().displayName || snap.data().email || uid) : uid;
+            } catch { nameMap[uid] = uid; }
+          }));
+          el.innerHTML = `
+            <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
+              ${current.map(uid => `
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bright-gray);border-radius:10px;">
+                  <span style="font-size:13px;font-weight:600;color:var(--text-main);">${nameMap[uid]}</span>
+                  ${isOwner ? `<button class="btn-card-action btn-close-week" style="font-size:11px;padding:4px 10px;" data-uid="${uid}" onclick="removeCoLeader('${uid}')">Remove</button>` : ''}
+                </div>
+              `).join('')}
+            </div>`;
+        }
+
+        // Add co-leader input — owner only
+        if (isOwner) {
+          el.innerHTML += `
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+              <input type="email" id="coleader-email-input" placeholder="Co-leader's @globalgates.info email"
+                style="flex:1;min-width:200px;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Montserrat',sans-serif;font-size:13px;" />
+              <button class="btn-card-action btn-edit" id="btn-add-coleader" style="padding:9px 16px;">Add</button>
+            </div>
+            <div id="coleader-error" style="font-size:12px;color:var(--error);margin-top:6px;display:none;"></div>`;
+
+          document.getElementById('btn-add-coleader').addEventListener('click', addCoLeader);
+          document.getElementById('coleader-email-input').addEventListener('keydown', e => {
+            if (e.key === 'Enter') addCoLeader();
+          });
+        }
+      }
+
+      await renderCoLeaderList();
+
+      // Add co-leader by email — looks up UID from users collection
+      async function addCoLeader() {
+        const emailInput = document.getElementById('coleader-email-input');
+        const errorEl   = document.getElementById('coleader-error');
+        const btn       = document.getElementById('btn-add-coleader');
+        const email     = emailInput.value.trim().toLowerCase();
+
+        errorEl.style.display = 'none';
+        if (!email || !email.endsWith('@globalgates.info')) {
+          errorEl.textContent = 'Must be a @globalgates.info email address.';
+          errorEl.style.display = 'block';
+          return;
+        }
+
+        btn.textContent = 'Adding…';
+        btn.disabled = true;
+
+        try {
+          // Find user by email in users collection
+          const usersSnap = await getDocs(query(collection(db, 'users'), where('email', '==', email)));
+          if (usersSnap.empty) {
+            errorEl.textContent = 'No admin account found for that email. They must sign in to admin.sifting.app at least once first.';
+            errorEl.style.display = 'block';
+            return;
+          }
+
+          const coLeaderUid = usersSnap.docs[0].id;
+          if (coLeaderUid === currentUser.uid) {
+            errorEl.textContent = "That's you — you're already the week owner.";
+            errorEl.style.display = 'block';
+            return;
+          }
+
+          const existing = currentDetailWeek.coLeaders || [];
+          if (existing.includes(coLeaderUid)) {
+            errorEl.textContent = 'That person is already a co-leader.';
+            errorEl.style.display = 'block';
+            return;
+          }
+
+          const { arrayUnion } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+          const newCoLeaders = [...existing, coLeaderUid];
+          await updateDoc(doc(db, 'weeks', currentDetailWeek.id), { coLeaders: arrayUnion(coLeaderUid) });
+          currentDetailWeek.coLeaders = newCoLeaders;
+          emailInput.value = '';
+          showToast('Co-leader added ✓', 'success');
+          await renderCoLeaderList();
+
+        } catch (err) {
+          console.error(err);
+          errorEl.textContent = 'Could not add co-leader — check console.';
+          errorEl.style.display = 'block';
+        } finally {
+          btn.textContent = 'Add';
+          btn.disabled = false;
+        }
+      }
+    }
+
+    window.removeCoLeader = async function(uid) {
+      if (!currentDetailWeek || !confirm('Remove this co-leader?')) return;
+      try {
+        const { arrayRemove } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+        await updateDoc(doc(db, 'weeks', currentDetailWeek.id), { coLeaders: arrayRemove(uid) });
+        currentDetailWeek.coLeaders = (currentDetailWeek.coLeaders || []).filter(u => u !== uid);
+        showToast('Co-leader removed.', 'success');
+        loadDetailCoLeaders(currentDetailWeek);
+      } catch (err) {
+        console.error(err);
+        showToast('Could not remove co-leader.', 'err');
+      }
+    };
 
     async function loadDetailTallies(week) {
       const el = document.getElementById('detail-tally-content');

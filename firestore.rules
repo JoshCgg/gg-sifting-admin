@@ -33,6 +33,7 @@ service cloud.firestore {
       allow read: if true;
       allow create: if isVerifiedGGUser();
       allow update, delete: if isSuperAdmin() || ownsWeek(resource.data);
+      allow update: if isVerifiedGGUser() && resource.data.coLeaders.hasAny([request.auth.uid]);
     }
 
     // ── contacts ──────────────────────────────────────────────────────
