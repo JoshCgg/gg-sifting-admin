@@ -1015,7 +1015,7 @@
         <div class="step-card">
           <div class="step-title">Training Modules</div>
           <div class="step-subtitle">Which training resources should be active for this week's field team?</div>
-          <div class="toggle-list" id="modules-list"></div>
+          <div class="toggle-list" id="wizard-modules-list"></div>
         </div>
         <div class="wizard-nav">
           <button class="btn-back" id="btn-step2-back">← Back</button>
@@ -1633,7 +1633,7 @@
       }
 
       // Re-render all steps
-      renderModules();
+      renderWizardModules();
       renderTallyFields();
       renderRecipients();
       renderNewsletters();
@@ -1645,7 +1645,7 @@
 
     window.clearTemplate = function() {
       resetWizardState();
-      renderModules();
+      renderWizardModules();
       renderTallyFields();
       renderRecipients();
       renderNewsletters();
@@ -2019,7 +2019,7 @@
 
       document.querySelectorAll('.field-error').forEach(el => el.style.display = 'none');
       setSurveyMode(surveyMode);
-      renderModules(); renderTallyFields(); renderRecipients(); renderNewsletters();
+      renderWizardModules(); renderTallyFields(); renderRecipients(); renderNewsletters();
       document.getElementById('screen-templates').style.display = 'none';
       document.getElementById('screen-wizard').style.display    = 'block';
       goStep(1);
@@ -2163,7 +2163,7 @@
       document.querySelectorAll('.field-error').forEach(el => el.style.display = 'none');
       document.querySelectorAll('.field input.invalid, .field select.invalid').forEach(el => el.classList.remove('invalid'));
       setSurveyMode(surveyMode);
-      renderModules(); renderTallyFields(); renderRecipients(); renderNewsletters();
+      renderWizardModules(); renderTallyFields(); renderRecipients(); renderNewsletters();
       document.getElementById('screen-dashboard').style.display = 'none';
       document.getElementById('screen-wizard').style.display   = 'block';
       goStep(1);
@@ -2286,8 +2286,8 @@
     }
 
     // ── Modules ──────────────────────────────────────────────
-    function renderModules() {
-      const list = document.getElementById('modules-list');
+    function renderWizardModules() {
+      const list = document.getElementById('wizard-modules-list');
       list.innerHTML = ws.modules.map((m, i) => `
         <div class="toggle-item ${m.on ? 'on' : ''}" data-idx="${i}">
           <div class="toggle-item-left">
@@ -3064,7 +3064,7 @@
             banner.style.display = 'none';
           }
         }
-        renderModules();
+        window.renderModules();
       } catch(e) {
         console.error('loadModules error:', e);
         document.getElementById('modules-list').innerHTML =
@@ -3078,7 +3078,7 @@
         .forEach(b => b.classList.remove('active'));
       const btn = document.getElementById('filter-' + filter);
       if (btn) btn.classList.add('active');
-      renderModules();
+      window.renderModules();
     };
 
     window.setTabFilter = function(tab) {
@@ -3088,7 +3088,7 @@
       });
       const btn = document.getElementById('tabfilter-' + tab);
       if (btn) btn.classList.add('active');
-      renderModules();
+      window.renderModules();
     };
 
     window.renderModules = function() {
