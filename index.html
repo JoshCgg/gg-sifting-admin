@@ -1476,6 +1476,7 @@
     const firebaseApp = initializeApp(firebaseConfig);
     const auth        = getAuth(firebaseApp);
     const db          = getFirestore(firebaseApp);
+    window.db         = db;
     const provider    = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
 
@@ -3873,16 +3874,18 @@ window.runModuleImport = async function() {
 
   ];
 
+  const { collection, addDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+
   let successCount = 0;
   let errorCount = 0;
 
   for (const m of modules) {
     try {
-      await db.collection('modules').add({
+      await addDoc(collection(window.db, 'modules'), {
         ...m,
         createdBy: CREATOR_UID,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
         copiedFrom: null,
         globalRequestNote: '',
         globalRejectNote: '',
