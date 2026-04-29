@@ -3046,10 +3046,10 @@
         let snap;
         if (currentUserIsAdmin()) {
           snap = await getDocs(query(collection(db, 'modules'), orderBy('createdAt', 'desc')));
-          allModules = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          allModules = snap?.docs ? snap.docs.map(d => ({ id: d.id, ...d.data() })) : [];
         } else {
           snap = await getDocs(query(collection(db, 'modules'), where('createdBy', '==', currentUser.uid), orderBy('createdAt', 'desc')));
-          allModules = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          allModules = snap?.docs ? snap.docs.map(d => ({ id: d.id, ...d.data() })) : [];
           const globalSnap = await getDocs(query(collection(db, 'modules'), where('status', '==', 'global')));
           const ids = new Set(allModules.map(m => m.id));
           globalSnap.docs.forEach(d => { if (!ids.has(d.id)) allModules.push({ id: d.id, ...d.data() }); });
@@ -3092,6 +3092,7 @@
     };
 
     window.renderModules = function() {
+      if (!Array.isArray(allModules)) { allModules = []; return; }
       let modules = [...allModules];
       if (currentModuleFilter === 'global')   modules = modules.filter(m => m.status === 'global');
       else if (currentModuleFilter === 'mine') modules = modules.filter(m => m.createdBy === currentUser.uid);
