@@ -1941,7 +1941,6 @@
           btn.addEventListener('click', async () => {
             if (!confirm('Delete this template? This cannot be undone.')) return;
             try {
-              const { deleteDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
               await deleteDoc(doc(db, 'templates', btn.dataset.id));
               showToast('Template deleted.', 'success');
               showTemplatesScreen();
@@ -2960,7 +2959,6 @@
       btn.textContent = 'Saving…';
 
       try {
-        const { setDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
         await setDoc(doc(db, 'users', currentUser.uid), {
           sheetId:     sheetId,
           email:       currentUser.email,
