@@ -3066,6 +3066,7 @@
         }
         renderModules();
       } catch(e) {
+        console.error('loadModules error:', e);
         document.getElementById('modules-list').innerHTML =
           `<p style="color:#dc3545;text-align:center;padding:40px 0;">Error: ${e.message}</p>`;
       }
