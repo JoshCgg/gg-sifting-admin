@@ -21,6 +21,9 @@ service cloud.firestore {
     function ownsModule(moduleData) {
       return isVerifiedGGUser() && moduleData.createdBy == request.auth.uid;
     }
+    function isFieldUser() {
+      return request.auth != null;
+    }
 
     match /users/{userId} {
       allow read: if request.auth != null && request.auth.uid == userId;
@@ -35,20 +38,20 @@ service cloud.firestore {
       allow update: if isVerifiedGGUser() && resource.data.coLeaders.hasAny([request.auth.uid]);
     }
     match /contacts/{contactId} {
-      allow create: if true;
-      allow read: if isVerifiedGGUser();
+      allow create: if isFieldUser();
+      allow read: if isFieldUser();
       allow delete: if isSuperAdmin();
       allow update: if false;
     }
     match /tallies/{tallyId} {
-      allow create: if true;
-      allow read: if isVerifiedGGUser();
+      allow create: if isFieldUser();
+      allow read: if isFieldUser();
       allow delete: if isSuperAdmin();
       allow update: if false;
     }
     match /surveyResponses/{responseId} {
-      allow create: if true;
-      allow read: if isVerifiedGGUser();
+      allow create: if isFieldUser();
+      allow read: if isFieldUser();
       allow delete: if isSuperAdmin();
       allow update: if false;
     }
