@@ -2473,7 +2473,7 @@
           ...ws.tally.map(t => ({ id: t.id, label: t.label, active: t.on })),
           ...ws.customTallyFields.filter(f => f.trim()).map((f, i) => ({ id: 'custom_' + i, label: f.trim(), active: true, custom: true })),
         ],
-        followUpRecipients: ws.recipients.filter(r => r.email && isValidEmail(r.email)),
+        followUpRecipients: ws.recipients.filter(r => (r.email && isValidEmail(r.email)) || (r.phone && r.phone.trim() !== '')),
         survey: surveyConfig,
         followUpMode: ws.followUpMode || 'inapp',
         followUpFormUrl: ws.followUpMode === 'link' ? (ws.followUpFormUrl || '') : '',
