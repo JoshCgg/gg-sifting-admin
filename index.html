@@ -180,7 +180,7 @@
     .toggle-item.on .toggle-switch::after { transform: translateX(18px); }
 
     .recipient-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
-    .recipient-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items: center; padding: 12px 14px; background: var(--bright-gray); border-radius: 10px; border: 1.5px solid var(--border); }
+    .recipient-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; align-items: center; padding: 12px 14px; background: var(--bright-gray); border-radius: 10px; border: 1.5px solid var(--border); }
     @media (max-width: 560px) { .recipient-row { grid-template-columns: 1fr; } }
     .recipient-row input { padding: 8px 10px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'Montserrat', sans-serif; font-size: 13px; background: white; width: 100%; }
     .recipient-row input:focus { outline: none; border-color: var(--blue-jeans); }
@@ -818,6 +818,9 @@
     }
     .profile-input:focus { outline: none; border-color: var(--blue-jeans); box-shadow: 0 0 0 3px rgba(83,184,243,0.15); }
     .profile-sheet-help { font-size: 11px; color: #5a7a95; line-height: 1.5; margin: 8px 0 14px; }
+    .sheet-helper-text { font-size: 12px; color: #6b7a8d; margin-top: 6px; line-height: 1.5; }
+    .sheet-email { font-family: monospace; font-size: 11px; background: #f0f4f8; padding: 2px 5px; border-radius: 4px; cursor: pointer; word-break: break-all; }
+    .copy-hint { color: #aaa; font-size: 11px; }
     .btn-save-sheet {
       width: 100%; background: var(--indigo); color: white; border: none;
       border-radius: 10px; padding: 12px; font-family: 'Montserrat', sans-serif;
@@ -1444,7 +1447,12 @@
             id="profile-sheet-id"
             placeholder="Paste Sheet ID…"
           />
-          <p class="profile-sheet-help">Create a new Google Sheet. Share it with <strong>sheets-writer@gg-sifting-admin.iam.gserviceaccount.com</strong> as Editor. Then paste the Sheet ID from the sheet's URL here — it's the long string between /d/ and /edit.</p>
+          <p class="sheet-helper-text">
+            Share your sheet with
+            <span class="sheet-email" onclick="copySheetEmail(this)">440903094020-compute@developer.gserviceaccount.com</span>
+            and give it <strong>Editor</strong> access. Without this, contacts won't write to your sheet.
+            <span class="copy-hint">(tap to copy)</span>
+          </p>
           <button class="btn-save-sheet" id="btn-save-sheet">Save Sheet ID</button>
         </div>
         <div class="profile-footer">
@@ -2346,6 +2354,7 @@
         <div class="recipient-row">
           <input type="text"  placeholder="Name"  value="${r.name}"  class="rec-name"  data-idx="${i}" />
           <input type="email" placeholder="Email" value="${r.email}" class="rec-email" data-idx="${i}" />
+          <input type="tel" placeholder="Phone (for SMS alerts)" value="${r.phone || ''}" class="rec-phone" data-idx="${i}" />
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
             <label class="recipient-primary">
               <input type="radio" name="primary-rec" class="rec-primary" data-idx="${i}" ${r.primary ? 'checked' : ''} /> Primary
@@ -2356,6 +2365,7 @@
       `).join('');
       list.querySelectorAll('.rec-name').forEach(el => el.addEventListener('input', e => { ws.recipients[+e.target.dataset.idx].name = e.target.value; }));
       list.querySelectorAll('.rec-email').forEach(el => el.addEventListener('input', e => { ws.recipients[+e.target.dataset.idx].email = e.target.value; }));
+      list.querySelectorAll('.rec-phone').forEach(el => el.addEventListener('input', e => { ws.recipients[+e.target.dataset.idx].phone = e.target.value.trim(); }));
       list.querySelectorAll('.rec-primary').forEach(el => el.addEventListener('change', e => { const idx = +e.target.dataset.idx; ws.recipients.forEach((r,i) => r.primary = (i===idx)); }));
       list.querySelectorAll('.rec-remove').forEach(el => el.addEventListener('click', e => {
         ws.recipients.splice(+e.target.dataset.idx, 1);
@@ -2365,7 +2375,7 @@
     }
 
     document.getElementById('btn-add-recipient').addEventListener('click', () => {
-      ws.recipients.push({ name:'', email:'', primary:false });
+      ws.recipients.push({ name:'', email:'', phone:'', primary:false });
       renderRecipients();
       setTimeout(() => { const els = document.querySelectorAll('.rec-name'); if (els.length) els[els.length-1].focus(); }, 50);
     });
@@ -2940,6 +2950,12 @@
     function closeProfilePanel() {
       document.getElementById('profile-overlay').classList.remove('show');
     }
+
+    window.copySheetEmail = function(el) {
+      navigator.clipboard.writeText('440903094020-compute@developer.gserviceaccount.com');
+      el.textContent = 'Copied!';
+      setTimeout(() => el.textContent = '440903094020-compute@developer.gserviceaccount.com', 2000);
+    };
 
     // Open on user pill click
     document.querySelector('.user-pill').addEventListener('click', openProfilePanel);
