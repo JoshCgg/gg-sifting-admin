@@ -3,9 +3,40 @@ const { onDocumentCreated } = require("firebase-functions/v2/firestore");
 const { defineString } = require("firebase-functions/params");
 const { google } = require("googleapis");
 const admin = require("firebase-admin");
+const nodemailer = require('nodemailer');
 
 admin.initializeApp();
 setGlobalOptions({ maxInstances: 10 });
+
+async function sendEmailNotifications(contact, weekData) {
+  const recipients = (weekData.followUpRecipients || []).filter(r => r.email && r.email.trim());
+  if (recipients.length === 0) return;
+
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_APP_PASSWORD
+    }
+  });
+
+  const subject = `📌 New Contact — ${contact.name || 'Unknown'} — ${weekData.label || ''}`;
+  const text = [
+    `New contact logged for ${weekData.label || ''} (${weekData.city || ''})`,
+    '',
+    `Name: ${contact.name || ''}`,
+    `Phone: ${contact.phone || 'not provided'}`,
+    `Gospel Response: ${contact.gospelResponse || ''}`,
+    `Logged by: ${contact.loggerName || ''}`,
+    '',
+    'Notes:',
+    contact.notes || 'none',
+  ].join('\n');
+
+  await Promise.all(recipients.map(r =>
+    transporter.sendMail({ from: process.env.GMAIL_USER, to: r.email, subject, text })
+  ));
+}
 
 const MASTER_SHEET_ID = defineString("MASTER_SHEET_ID");
 
@@ -96,6 +127,12 @@ exports.onContactCreated = onDocumentCreated(
 
       await appendToSheet(MASTER_SHEET_ID.value(), "master");
       console.log("onContactCreated completed successfully");
+
+      try {
+        await sendEmailNotifications(contact, weekData);
+      } catch (err) {
+        console.error('Email notification failed:', err);
+      }
 
     } catch (err) {
       console.error("FATAL ERROR in onContactCreated:", err.message);
