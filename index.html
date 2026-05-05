@@ -180,6 +180,7 @@
     .toggle-item.on .toggle-switch::after { transform: translateX(18px); }
 
     .recipient-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+    .recipients-guidance { font-size: 13px; color: #2a618f; margin-bottom: 12px; line-height: 1.5; }
     .recipient-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; align-items: center; padding: 12px 14px; background: var(--bright-gray); border-radius: 10px; border: 1.5px solid var(--border); }
     @media (max-width: 560px) { .recipient-row { grid-template-columns: 1fr; } }
     .recipient-row input { padding: 8px 10px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'Montserrat', sans-serif; font-size: 13px; background: white; width: 100%; }
@@ -1048,6 +1049,7 @@
         <div class="step-card">
           <div class="step-title">Follow-Up Routing</div>
           <div class="step-subtitle">Who receives contact submissions from the field? Mark one as primary — they get every submission. Others are CC'd.</div>
+          <p class="recipients-guidance">📱 SMS/text is preferred — it gives your follow-up point person the fastest possible alert when a contact is logged.</p>
           <div class="recipient-list" id="recipient-list"></div>
           <button class="btn-add" id="btn-add-recipient">+ Add recipient</button>
           <div class="field-error" id="err-recipients" style="margin-top:10px;">At least one recipient with a valid email is required.</div>
@@ -2277,7 +2279,7 @@
     }
 
     function validateRecipients() {
-      const valid = ws.recipients.some(r => r.email && isValidEmail(r.email));
+      const valid = ws.recipients.some(r => (r.email && isValidEmail(r.email)) || (r.phone && r.phone.trim()));
       document.getElementById('err-recipients').style.display = valid ? 'none' : 'block';
       return valid;
     }
@@ -2353,8 +2355,8 @@
       list.innerHTML = ws.recipients.map((r, i) => `
         <div class="recipient-row">
           <input type="text"  placeholder="Name"  value="${r.name}"  class="rec-name"  data-idx="${i}" />
-          <input type="email" placeholder="Email" value="${r.email}" class="rec-email" data-idx="${i}" />
           <input type="tel" placeholder="Phone (for SMS alerts)" value="${r.phone || ''}" class="rec-phone" data-idx="${i}" />
+          <input type="email" placeholder="Email" value="${r.email}" class="rec-email" data-idx="${i}" />
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
             <label class="recipient-primary">
               <input type="radio" name="primary-rec" class="rec-primary" data-idx="${i}" ${r.primary ? 'checked' : ''} /> Primary
