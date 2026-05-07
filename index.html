@@ -1289,6 +1289,11 @@
           <input type="text" id="mod-title" placeholder="e.g. Prayer Walking Intro" maxlength="80">
         </div>
         <div class="form-row">
+          <label>Slug <span style="font-weight:400;color:#888;">(optional — used by field app)</span></label>
+          <input type="text" id="mod-slug" placeholder="e.g. prayer-walking" maxlength="60" style="font-family:monospace;">
+          <p class="form-hint">Lowercase letters, numbers, hyphens only. Leave blank for new modules unless replacing a field app default.</p>
+        </div>
+        <div class="form-row">
           <label>Short Description *</label>
           <textarea id="mod-desc" placeholder="1–2 sentences shown on the module card and in the field app." style="min-height:70px;"></textarea>
         </div>
@@ -2316,10 +2321,10 @@
       ws.modules.forEach(m => { existingOnState[m.id] = m.on; });
 
       ws.modules = firestoreModules.map(m => ({
-        id:    m.id,
+        id:    m.slug || m.id,
         label: m.title,
         desc:  m.description || '',
-        on:    existingOnState.hasOwnProperty(m.id) ? existingOnState[m.id] : (m.status === 'global'),
+        on:    existingOnState.hasOwnProperty(m.slug || m.id) ? existingOnState[m.slug || m.id] : (m.status === 'global'),
       }));
 
       list.innerHTML = ws.modules.map((m, i) => `
@@ -3205,7 +3210,7 @@
 
     window.openModuleEditor = function(moduleId) {
       editingModuleId = moduleId;
-      ['mod-title','mod-desc','mod-tab','mod-video-url','mod-video-caption',
+      ['mod-title','mod-slug','mod-desc','mod-tab','mod-video-url','mod-video-caption',
        'mod-external-url','mod-external-desc','mod-global-note'].forEach(id => {
         const el = document.getElementById(id); if (el) el.value = '';
       });
@@ -3223,6 +3228,7 @@
         if (m) {
           document.getElementById('editor-title').textContent = '✏️ Edit Module';
           document.getElementById('mod-title').value = m.title || '';
+          document.getElementById('mod-slug').value = m.slug || '';
           document.getElementById('mod-desc').value = m.description || '';
           document.getElementById('mod-tab').value = m.tab || '';
           window.selectModuleType(m.type || 'content');
@@ -3303,10 +3309,12 @@
       if (!tab)   { alert('Please select a tab (Prepare, Pray, or Share).'); return; }
       const selectedType = document.querySelector('.radio-option.selected input');
       const type = selectedType ? selectedType.value : 'content';
+      const slugVal = document.getElementById('mod-slug')?.value.trim().toLowerCase().replace(/[^a-z0-9-]/g,'') || '';
       const moduleDoc = {
         title, description, tab, type,
         status: ['draft','active'].includes(visValue) ? visValue : (editingModuleId ? visValue : 'draft'),
         updatedAt: serverTimestamp(),
+        ...(slugVal && { slug: slugVal }),
       };
       if (type === 'content') {
         moduleDoc.body = document.getElementById('module-body-editor').innerHTML;
