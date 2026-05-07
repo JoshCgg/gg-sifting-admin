@@ -3193,6 +3193,15 @@
       }
       if (isAdm && m.status === 'archived') actions += `<button onclick="window.unarchiveModule('${m.id}')">Unarchive</button>`;
       if (currentUserIsSuperAdmin() && m.status === 'archived') actions += `<button class="btn-danger" onclick="window.deleteModule('${m.id}')">Delete</button>`;
+      if (currentUserIsSuperAdmin()) actions += `
+  <select onchange="window.superSetModuleStatus('${m.id}', this.value)" style="padding:5px 10px;border-radius:6px;border:1px solid #dde3e8;font-family:'Montserrat',sans-serif;font-size:0.78rem;font-weight:600;color:#1B456A;background:#f0f4f8;cursor:pointer;">
+    <option value="" disabled selected>⚙️ Set status…</option>
+    <option value="draft"          ${m.status==='draft'          ? 'selected':''}>🔒 Draft</option>
+    <option value="active"         ${m.status==='active'         ? 'selected':''}>✅ Active</option>
+    <option value="global"         ${m.status==='global'         ? 'selected':''}>🌐 Global</option>
+    <option value="pending_global" ${m.status==='pending_global' ? 'selected':''}>⏳ Pending</option>
+    <option value="archived"       ${m.status==='archived'       ? 'selected':''}>📦 Archived</option>
+  </select>`;
       let rejectNote = '';
       if (m.globalRejectNote && isOwner) {
         rejectNote = `<p style="font-size:0.8rem;color:#721c24;background:#fff5f5;border:1px solid #f5c6cb;border-radius:6px;padding:8px 12px;margin:8px 0 0 0;">❌ Rejected: ${escHtml(m.globalRejectNote)}</p>`;
@@ -3379,6 +3388,28 @@
         await deleteDoc(doc(db, 'modules', moduleId));
         await window.loadModules();
       } catch(e) { alert('Error: ' + e.message); }
+    };
+
+    window.superSetModuleStatus = async function(moduleId, newStatus) {
+      if (!currentUserIsSuperAdmin()) return;
+      if (!newStatus) return;
+      const m = allModules.find(x => x.id === moduleId);
+      const label = m ? m.title : moduleId;
+      if (!confirm(`Set "${label}" to ${newStatus}?`)) {
+        await window.loadModules();
+        return;
+      }
+      try {
+        await updateDoc(doc(db, 'modules', moduleId), {
+          status: newStatus,
+          updatedAt: serverTimestamp(),
+        });
+        showToast(`Module set to ${newStatus} ✓`, 'success');
+        await window.loadModules();
+      } catch(e) {
+        showToast('Error: ' + e.message, 'err');
+        await window.loadModules();
+      }
     };
 
     window.makeCopy = async function(moduleId) {
