@@ -3318,12 +3318,14 @@
       if (!tab)   { alert('Please select a tab (Prepare, Pray, or Share).'); return; }
       const selectedType = document.querySelector('.radio-option.selected input');
       const type = selectedType ? selectedType.value : 'content';
-      const slugVal = document.getElementById('mod-slug')?.value.trim().toLowerCase().replace(/[^a-z0-9-]/g,'') || '';
+      const manualSlug = document.getElementById('mod-slug')?.value.trim().toLowerCase().replace(/[^a-z0-9-]/g,'') || '';
+      const autoSlug = title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+      const slugVal = manualSlug || autoSlug;
       const moduleDoc = {
         title, description, tab, type,
         status: ['draft','active'].includes(visValue) ? visValue : (editingModuleId ? visValue : 'draft'),
         updatedAt: serverTimestamp(),
-        ...(slugVal && { slug: slugVal }),
+        slug: slugVal,
       };
       if (type === 'content') {
         moduleDoc.body = document.getElementById('module-body-editor').innerHTML;
