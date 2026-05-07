@@ -1589,7 +1589,7 @@
       }
     }
 
-    function applyTemplate() {
+    async function applyTemplate() {
       const sel = document.getElementById('template-select');
       const templates = sel._templates || [];
       const chosen = templates.find(t => t.id === sel.value);
@@ -1644,7 +1644,7 @@
       }
 
       // Re-render all steps
-      renderWizardModules();
+      await renderWizardModules();
       renderTallyFields();
       renderRecipients();
       renderNewsletters();
@@ -1654,9 +1654,9 @@
       document.getElementById('template-applied-note').style.display = 'block';
     }
 
-    window.clearTemplate = function() {
+    window.clearTemplate = async function() {
       resetWizardState();
-      renderWizardModules();
+      await renderWizardModules();
       renderTallyFields();
       renderRecipients();
       renderNewsletters();
@@ -1972,7 +1972,7 @@
       }
     }
 
-    function startTemplateEdit(template) {
+    async function startTemplateEdit(template) {
       resetWizardState();
       editingWeekId    = null;
       editingTemplateId = template.id;
@@ -2034,7 +2034,7 @@
 
       document.querySelectorAll('.field-error').forEach(el => el.style.display = 'none');
       setSurveyMode(surveyMode);
-      renderWizardModules(); renderTallyFields(); renderRecipients(); renderNewsletters();
+      await renderWizardModules(); renderTallyFields(); renderRecipients(); renderNewsletters();
       document.getElementById('screen-templates').style.display = 'none';
       document.getElementById('screen-wizard').style.display    = 'block';
       goStep(1);
@@ -2102,7 +2102,7 @@
     });
 
     // ── Wizard ───────────────────────────────────────────────
-    function startWizard(existingWeek) {
+    async function startWizard(existingWeek) {
       resetWizardState();
       loadTemplates();
       editingWeekId = existingWeek ? existingWeek.id : null;
@@ -2178,7 +2178,7 @@
       document.querySelectorAll('.field-error').forEach(el => el.style.display = 'none');
       document.querySelectorAll('.field input.invalid, .field select.invalid').forEach(el => el.classList.remove('invalid'));
       setSurveyMode(surveyMode);
-      renderWizardModules(); renderTallyFields(); renderRecipients(); renderNewsletters();
+      await renderWizardModules(); renderTallyFields(); renderRecipients(); renderNewsletters();
       document.getElementById('screen-dashboard').style.display = 'none';
       document.getElementById('screen-wizard').style.display   = 'block';
       goStep(1);
@@ -2301,8 +2301,27 @@
     }
 
     // ── Modules ──────────────────────────────────────────────
-    function renderWizardModules() {
+    async function renderWizardModules() {
       const list = document.getElementById('wizard-modules-list');
+      list.innerHTML = '<p style="color:#aaa;font-size:13px;">Loading modules…</p>';
+
+      if (!allModules.length) await window.loadModules();
+
+      const firestoreModules = allModules.filter(m =>
+        m.status === 'global' ||
+        (m.status === 'active' && m.createdBy === currentUser.uid)
+      );
+
+      const existingOnState = {};
+      ws.modules.forEach(m => { existingOnState[m.id] = m.on; });
+
+      ws.modules = firestoreModules.map(m => ({
+        id:    m.id,
+        label: m.title,
+        desc:  m.description || '',
+        on:    existingOnState.hasOwnProperty(m.id) ? existingOnState[m.id] : (m.status === 'global'),
+      }));
+
       list.innerHTML = ws.modules.map((m, i) => `
         <div class="toggle-item ${m.on ? 'on' : ''}" data-idx="${i}">
           <div class="toggle-item-left">
@@ -2312,9 +2331,12 @@
           <div class="toggle-switch"></div>
         </div>
       `).join('');
+
       list.querySelectorAll('.toggle-item').forEach(el => {
         el.addEventListener('click', () => {
-          const i = +el.dataset.idx; ws.modules[i].on = !ws.modules[i].on; el.classList.toggle('on', ws.modules[i].on);
+          const i = +el.dataset.idx;
+          ws.modules[i].on = !ws.modules[i].on;
+          el.classList.toggle('on', ws.modules[i].on);
         });
       });
     }
