@@ -56,9 +56,7 @@ service cloud.firestore {
       allow update: if false;
     }
     match /modules/{moduleId} {
-      allow read: if resource.data.status == 'global';
-      allow read: if isVerifiedGGUser() && ownsModule(resource.data);
-      allow read: if isAdmin();
+      allow read: if true;
       allow create: if isVerifiedGGUser();
       allow update: if isVerifiedGGUser() && ownsModule(resource.data) && resource.data.status != 'global';
       allow update: if isAdmin();
