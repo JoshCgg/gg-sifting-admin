@@ -616,6 +616,22 @@
       outline: none;
       color: #222;
     }
+    #module-body-editor ul,
+    #module-body-editor ol {
+      padding-left: 24px;
+      margin: 8px 0;
+    }
+    #module-body-editor li {
+      margin-bottom: 5px;
+      padding-left: 4px;
+    }
+    #module-body-editor p {
+      margin: 0 0 8px 0;
+    }
+    #module-body-editor a {
+      color: #1B456A;
+      text-decoration: underline;
+    }
     #module-body-editor:focus { border-color: #53B8F3; }
     #module-body-editor h2 { color: #1B456A; margin: 0.5em 0 0.3em; }
     #module-body-editor h3 { color: #2a618f; margin: 0.5em 0 0.3em; }
@@ -1349,10 +1365,12 @@
           <button onclick="window.insertLink()">🔗 Link</button>
           <div class="toolbar-sep"></div>
           <button onclick="window.richCmd('removeFormat')" style="font-size:0.75rem;">✕ Clear</button>
+          <div class="toolbar-sep"></div>
+          <button onclick="window.toggleHTMLMode()" id="btn-html-mode" style="font-size:0.75rem;font-family:monospace;">‹/›</button>
         </div>
-        <div id="module-body-editor" contenteditable="true" spellcheck="true">
-          <p>Start typing your module content here…</p>
-        </div>
+        <div id="module-body-editor" contenteditable="true" spellcheck="true"></div>
+        <textarea id="module-body-html" spellcheck="false"
+          style="display:none;width:100%;min-height:240px;padding:14px;border:1px solid #dde3e8;border-radius:0 0 8px 8px;font-family:monospace;font-size:0.82rem;line-height:1.6;background:#f8f9fa;box-sizing:border-box;resize:vertical;outline:none;color:#222;"></textarea>
         <p class="form-hint" style="margin-top:8px;">Use H2 for main sections, H3 for subsections. Scripture quotes work well as blockquotes.</p>
         <div style="margin-top:20px;">
           <label style="display:block;font-size:0.82rem;font-weight:700;color:#1B456A;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.04em;">Images (optional)</label>
@@ -3223,7 +3241,7 @@
        'mod-external-url','mod-external-desc','mod-global-note'].forEach(id => {
         const el = document.getElementById(id); if (el) el.value = '';
       });
-      document.getElementById('module-body-editor').innerHTML = '<p>Start typing your module content here…</p>';
+      document.getElementById('module-body-editor').innerHTML = '';
       document.getElementById('image-inputs').innerHTML = '';
       document.getElementById('global-request-panel').style.display = 'none';
       document.getElementById('btn-request-global').style.display = 'none';
@@ -3268,6 +3286,11 @@
         document.getElementById('editor-title').textContent = '✏️ New Module';
         document.getElementById('module-body-editor').innerHTML = '';
         window.addImageInput();
+        _htmlModeActive = false;
+        const _ta = document.getElementById('module-body-html');
+        const _btn = document.getElementById('btn-html-mode');
+        if (_ta) { _ta.style.display = 'none'; _ta.value = ''; }
+        if (_btn) { _btn.style.background = ''; _btn.style.color = ''; }
       }
       window.showScreen('module-editor-screen');
     };
@@ -3300,6 +3323,32 @@
       container.appendChild(row);
     };
 
+    let _htmlModeActive = false;
+
+    window.toggleHTMLMode = function() {
+      const editor = document.getElementById('module-body-editor');
+      const textarea = document.getElementById('module-body-html');
+      const btn = document.getElementById('btn-html-mode');
+      _htmlModeActive = !_htmlModeActive;
+      if (_htmlModeActive) {
+        // Switching to HTML mode — copy innerHTML to textarea
+        textarea.value = editor.innerHTML;
+        editor.style.display = 'none';
+        textarea.style.display = 'block';
+        btn.style.background = '#1B456A';
+        btn.style.color = '#fff';
+        textarea.focus();
+      } else {
+        // Switching back to visual mode — copy textarea back to editor
+        editor.innerHTML = textarea.value;
+        textarea.style.display = 'none';
+        editor.style.display = 'block';
+        btn.style.background = '';
+        btn.style.color = '';
+        editor.focus();
+      }
+    };
+
     window.richCmd = function(cmd, value) {
       document.getElementById('module-body-editor').focus();
       document.execCommand(cmd, false, value || null);
@@ -3329,7 +3378,10 @@
         slug: slugVal,
       };
       if (type === 'content') {
-        moduleDoc.body = document.getElementById('module-body-editor').innerHTML;
+        const htmlTextarea = document.getElementById('module-body-html');
+        moduleDoc.body = _htmlModeActive
+          ? htmlTextarea.value
+          : document.getElementById('module-body-editor').innerHTML;
         moduleDoc.images = Array.from(document.querySelectorAll('#image-inputs .image-input-row')).map(row => {
           const inputs = row.querySelectorAll('input');
           return { url: inputs[0].value.trim(), caption: inputs[1].value.trim() };
