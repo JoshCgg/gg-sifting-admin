@@ -619,7 +619,7 @@
     #module-body-editor ul,
     #module-body-editor ol {
       padding-left: 24px;
-      margin: 8px 0;
+      margin: 8px 0 8px 16px;
     }
     #module-body-editor li {
       margin-bottom: 5px;
@@ -3350,6 +3350,12 @@
     };
 
     window.richCmd = function(cmd, value) {
+      if (cmd === 'removeFormat') {
+        const editor = document.getElementById('module-body-editor');
+        editor.innerHTML = '';
+        editor.focus();
+        return;
+      }
       document.getElementById('module-body-editor').focus();
       document.execCommand(cmd, false, value || null);
     };
