@@ -1513,29 +1513,7 @@
     const provider    = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
 
-    async function stripInlineColors() {
-      const snapshot = await getDocs(collection(db, 'modules'));
-      let checked = 0, updated = 0, skipped = 0;
-      for (const docSnap of snapshot.docs) {
-        const data = docSnap.data();
-        checked++;
-        if (!data.body || typeof data.body !== 'string') { skipped++; continue; }
-        const cleaned = data.body
-          .replace(/<(h[1-6]|span)([^>]*?)style\s*=\s*["'][^"']*color\s*:[^"']*["']([^>]*?)>/gi,
-            (match, tag, before, after) => `<${tag}${before}${after}>`)
-          .replace(/(<(?:h[1-6]|span)[^>]*?style\s*=\s*["'][^"']*)color\s*:[^;'"]+;?\s*/gi, '$1');
-        if (cleaned === data.body) { console.log(`⬜ No change: "${data.title || docSnap.id}"`); skipped++; continue; }
-        try {
-          await updateDoc(doc(db, 'modules', docSnap.id), { body: cleaned, updatedAt: new Date() });
-          console.log(`✅ Updated: "${data.title || docSnap.id}"`);
-          updated++;
-        } catch (err) { console.error(`❌ Failed: "${data.title || docSnap.id}"`, err); }
-      }
-      console.log(`--- Done --- Checked: ${checked} | Updated: ${updated} | Skipped: ${skipped}`);
-    }
-    stripInlineColors();
-
-    const ALLOWED_DOMAIN = 'globalgates.info';
+const ALLOWED_DOMAIN = 'globalgates.info';
     let currentUser    = null;
     let surveyMode     = 'inapp'; // 'inapp' | 'link'
     let editingWeekId  = null;    // null = new week, string = editing existing week
