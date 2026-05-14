@@ -161,9 +161,12 @@ exports.onSurveyCreated = onDocumentCreated(
       }
       const weekData = weekDoc.data();
       const leaderId = weekData.createdBy;
+      console.log("Week found. leaderId:", leaderId);
 
       const userDoc = await admin.firestore().collection("users").doc(leaderId).get();
       const leaderSheetId = userDoc.exists ? userDoc.data().sheetId : null;
+      console.log("Leader sheetId:", leaderSheetId);
+      console.log("Master sheetId:", MASTER_SHEET_ID.value());
 
       const auth = new google.auth.GoogleAuth({
         scopes: ["https://www.googleapis.com/auth/spreadsheets"],
@@ -171,23 +174,39 @@ exports.onSurveyCreated = onDocumentCreated(
       const sheets = google.sheets({ version: "v4", auth });
 
       const tab = "Post-Trip Survey";
+
+      const submittedAt = survey.submittedAt;
+      let dateStr = "";
+      if (submittedAt) {
+        const d = submittedAt.toDate ? submittedAt.toDate() : new Date(submittedAt);
+        dateStr = d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+      }
+
       const row = [
-        survey.clientDate || "",
+        dateStr,
         weekData.label || "",
         weekData.city || "",
         survey.codeWord || "",
         survey.name || "",
         survey.email || "",
         survey.didPretrip || "",
+        survey.pretripImprovements || "",
         survey.gospelShareCount || "",
         survey.mostHelpfulTraining || "",
         survey.leastHelpfulTraining || "",
         survey.whatWouldYouChange || "",
         survey.relationshipMapName || "",
         survey.willTrain411 || "",
-        Array.isArray(survey.partnershipInterests) ? survey.partnershipInterests.join(" / ") : "",
-        Array.isArray(survey.prayerUpdateSignups) ? survey.prayerUpdateSignups.map(s => s.name || s).join(" / ") : "",
-        Array.isArray(survey.financialPartnershipInterests) ? survey.financialPartnershipInterests.map(s => s.name || s).join(" / ") : "",
+        Array.isArray(survey.partnershipInterests) ? survey.partnershipInterests.join(", ") : "",
+        Array.isArray(survey.prayerUpdateSignups)
+          ? survey.prayerUpdateSignups.map(s => {
+              if (typeof s === "object" && s !== null) {
+                return s.email ? `${s.name || ""} <${s.email}>` : (s.name || "");
+              }
+              return s;
+            }).join("; ")
+          : "",
+        Array.isArray(survey.financialPartnershipInterests) ? survey.financialPartnershipInterests.join(", ") : "",
         survey.anythingElse || "",
       ];
 
@@ -201,10 +220,10 @@ exports.onSurveyCreated = onDocumentCreated(
           if (!existing.data.values || existing.data.values.length === 0) {
             const headers = [
               "Date", "Week Name", "City", "Code Word", "Name", "Email",
-              "Did Pretrip", "Gospel Share Count", "Most Helpful Training",
-              "Least Helpful Training", "What Would You Change", "Relationship Map",
-              "Will Train 411", "Partnership Interests", "Prayer Update Signups",
-              "Financial Partnership Interests", "Anything Else",
+              "Did Pre-Trip", "Pre-Trip Improvements", "Gospel Shares",
+              "Most Helpful Training", "Least Helpful Training", "What Would You Change",
+              "Relationship Map Name", "Will Train 411", "Partnership Interests",
+              "Prayer Update Signups", "Financial Partnership Interests", "Anything Else",
             ];
             await sheets.spreadsheets.values.append({
               spreadsheetId: sheetId,

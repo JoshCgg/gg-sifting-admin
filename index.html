@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GG Sifting Admin</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Libre+Baskerville:ital@0;1&display=swap" rel="stylesheet" />
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -1227,7 +1228,10 @@
 
       <!-- Contacts -->
       <div class="detail-section">
-        <div class="detail-section-title">👤 Contacts <span id="detail-contact-count" style="font-weight:400;color:var(--text-soft);text-transform:none;letter-spacing:0;font-size:12px;"></span></div>
+        <div class="detail-section-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+          <span>👤 Contacts <span id="detail-contact-count" style="font-weight:400;color:var(--text-soft);text-transform:none;letter-spacing:0;font-size:12px;"></span></span>
+          <button id="detail-btn-export-contacts" class="btn-card-action" style="text-transform:none;letter-spacing:normal;font-size:12px;padding:6px 14px;background:rgba(27,69,106,0.10);color:#1B456A;font-weight:600;">Export Contacts</button>
+        </div>
         <div id="detail-contacts-content"><div class="detail-loading">Loading contacts…</div></div>
       </div>
     </div>
@@ -2624,8 +2628,12 @@ const ALLOWED_DOMAIN = 'globalgates.info';
         `;
       }
 
-      el.innerHTML = badgeHtml + buttonsHtml;
+      const exportSurveysBtn = `<button class="btn-card-action" id="detail-btn-export-surveys" style="background:rgba(27,69,106,0.10);color:#1B456A;">Export Surveys</button>`;
+      el.innerHTML = badgeHtml + buttonsHtml + exportSurveysBtn;
 
+      el.querySelector('#detail-btn-export-surveys')?.addEventListener('click', () => {
+        exportSurveys(currentDetailWeek);
+      });
       el.querySelector('#detail-btn-close')?.addEventListener('click', async () => {
         if (!confirm('Close this week? The field team will no longer be able to submit contacts using this code word.')) return;
         await updateDetailWeekStatus('closed');
@@ -2915,6 +2923,9 @@ const ALLOWED_DOMAIN = 'globalgates.info';
         // Store contacts on the element for share access
         el._contacts = contacts;
 
+        const exportContactsBtn = document.getElementById('detail-btn-export-contacts');
+        if (exportContactsBtn) exportContactsBtn.onclick = () => exportContacts(week, contacts);
+
         // Toggle expand on row click
         el.querySelectorAll('.contact-row').forEach(row => {
           row.addEventListener('click', e => {
@@ -2961,6 +2972,121 @@ const ALLOWED_DOMAIN = 'globalgates.info';
           ? 'Firestore index still building — try again in a few minutes.'
           : 'Could not load contacts.';
         el.innerHTML = `<div class="contacts-empty">${msg}</div>`;
+      }
+    }
+
+    async function exportSurveys(week) {
+      try {
+        showToast('Exporting surveys…', 'info');
+        const snap = await getDocs(query(
+          collection(db, 'surveyResponses'),
+          where('weekId', '==', week.id)
+        ));
+
+        const headers = [
+          "Date", "Name", "Email", "Did Pre-Trip", "Pre-Trip Improvements",
+          "Gospel Shares", "Most Helpful Training", "Least Helpful Training",
+          "What Would You Change", "Relationship Map Name", "Will Train 411",
+          "Partnership Interests", "Prayer Update Signups", "Financial Partnership Interests",
+          "Anything Else",
+        ];
+
+        const rows = [];
+        snap.forEach(d => {
+          const s = d.data();
+          const submittedAt = s.submittedAt;
+          let dateStr = "";
+          if (submittedAt) {
+            const dt = submittedAt.toDate ? submittedAt.toDate() : new Date(submittedAt);
+            if (!isNaN(dt)) dateStr = dt.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+          }
+          rows.push([
+            dateStr,
+            s.name || "",
+            s.email || "",
+            s.didPretrip || "",
+            s.pretripImprovements || "",
+            s.gospelShareCount || "",
+            s.mostHelpfulTraining || "",
+            s.leastHelpfulTraining || "",
+            s.whatWouldYouChange || "",
+            s.relationshipMapName || "",
+            s.willTrain411 || "",
+            Array.isArray(s.partnershipInterests) ? s.partnershipInterests.join(", ") : "",
+            Array.isArray(s.prayerUpdateSignups)
+              ? s.prayerUpdateSignups.map(p => {
+                  if (typeof p === "object" && p !== null) {
+                    return p.email ? `${p.name || ""} <${p.email}>` : (p.name || "");
+                  }
+                  return p;
+                }).join("; ")
+              : "",
+            Array.isArray(s.financialPartnershipInterests) ? s.financialPartnershipInterests.join(", ") : "",
+            s.anythingElse || "",
+          ]);
+        });
+
+        const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Post-Trip Survey");
+
+        const date = new Date().toISOString().slice(0, 10);
+        const codeWord = (week.codeWord || "week").toLowerCase().replace(/\s+/g, "-");
+        XLSX.writeFile(wb, `surveys-${codeWord}-${date}.xlsx`);
+        showToast('Surveys exported ✓', 'success');
+      } catch (err) {
+        console.error(err);
+        showToast('Export failed.', 'err');
+      }
+    }
+
+    function exportContacts(week, contacts) {
+      try {
+        const headers = [
+          "Date", "Name", "Phone", "Language", "Neighborhood", "Gospel Response",
+          "Prayed With", "Interested in Bible", "Follow-Up Requested", "Encounter Type",
+          "Notes", "Logged By",
+        ];
+
+        const rows = contacts.map(c => {
+          const submittedAt = c.submittedAt;
+          let dateStr = "";
+          if (submittedAt) {
+            const dt = new Date(submittedAt);
+            if (!isNaN(dt)) dateStr = dt.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+          }
+          const dot = c.gospelResponse || c.response || "";
+          const gospelLabel =
+            dot === "green"  ? "Open / Believed" :
+            dot === "yellow" ? "Somewhat open" :
+            dot === "red"    ? "Not open" : "";
+          return [
+            dateStr || c.clientDate || "",
+            c.name || "",
+            c.phone || "",
+            c.language || c.lang || "",
+            c.neighborhood || "",
+            gospelLabel,
+            c.prayedWith ? "Yes" : "No",
+            c.interestedInBible ? "Yes" : "No",
+            c.followUpRequested || c.contactInfo ? "Yes" : "No",
+            c.type || c.encounterType || "",
+            c.notes || "",
+            c.loggerName || "",
+          ];
+        });
+
+        const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Follow-Up Contacts");
+
+        const date = new Date().toISOString().slice(0, 10);
+        const codeWord = (week.codeWord || "week").toLowerCase().replace(/\s+/g, "-");
+        XLSX.writeFile(wb, `contacts-${codeWord}-${date}.xlsx`);
+        showToast('Contacts exported ✓', 'success');
+      } catch (err) {
+        console.error(err);
+        showToast('Export failed.', 'err');
       }
     }
 
