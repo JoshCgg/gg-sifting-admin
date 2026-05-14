@@ -213,11 +213,28 @@ exports.onSurveyCreated = onDocumentCreated(
       async function appendToSheet(sheetId, label) {
         try {
           console.log("Attempting append to " + label + " sheet:", sheetId);
-          const existing = await sheets.spreadsheets.values.get({
-            spreadsheetId: sheetId,
-            range: tab + "!A1",
-          });
-          if (!existing.data.values || existing.data.values.length === 0) {
+
+          let isEmpty = false;
+          try {
+            const existing = await sheets.spreadsheets.values.get({
+              spreadsheetId: sheetId,
+              range: tab + "!A1",
+            });
+            isEmpty = !existing.data.values || existing.data.values.length === 0;
+          } catch (getErr) {
+            if (getErr.status === 400 || (getErr.message && getErr.message.includes("Unable to parse range"))) {
+              console.log("Tab '" + tab + "' not found in " + label + " sheet — creating it");
+              await sheets.spreadsheets.batchUpdate({
+                spreadsheetId: sheetId,
+                requestBody: { requests: [{ addSheet: { properties: { title: tab } } }] },
+              });
+              isEmpty = true;
+            } else {
+              throw getErr;
+            }
+          }
+
+          if (isEmpty) {
             const headers = [
               "Date", "Week Name", "City", "Code Word", "Name", "Email",
               "Did Pre-Trip", "Pre-Trip Improvements", "Gospel Shares",
@@ -234,6 +251,7 @@ exports.onSurveyCreated = onDocumentCreated(
             });
             console.log("Header row inserted into " + label + " sheet");
           }
+
           await sheets.spreadsheets.values.append({
             spreadsheetId: sheetId,
             range: tab + "!A1",
