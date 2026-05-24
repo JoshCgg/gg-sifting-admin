@@ -2888,6 +2888,10 @@ const ALLOWED_DOMAIN = 'globalgates.info';
                     <span class="contact-detail-value">${c.phone || '—'}</span>
                   </div>
                   <div class="contact-detail-item">
+                    <span class="contact-detail-label">Location</span>
+                    <span class="contact-detail-value">${c.location || '—'}</span>
+                  </div>
+                  <div class="contact-detail-item">
                     <span class="contact-detail-label">Gospel Response</span>
                     <span class="contact-detail-value">${
                       dot === 'green' ? '🟢 Open / Believed' :
@@ -3043,7 +3047,7 @@ const ALLOWED_DOMAIN = 'globalgates.info';
     function exportContacts(week, contacts) {
       try {
         const headers = [
-          "Date", "Name", "Phone", "Language", "Neighborhood", "Gospel Response",
+          "Date", "Name", "Location", "Phone", "Language", "Neighborhood", "Gospel Response",
           "Prayed With", "Interested in Bible", "Follow-Up Requested", "Encounter Type",
           "Notes", "Logged By",
         ];
@@ -3063,6 +3067,7 @@ const ALLOWED_DOMAIN = 'globalgates.info';
           return [
             dateStr || c.clientDate || "",
             c.name || "",
+            c.location || "",
             c.phone || "",
             c.language || c.lang || "",
             c.neighborhood || "",
