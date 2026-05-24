@@ -79,12 +79,13 @@ exports.onContactCreated = onDocumentCreated(
         weekData.city || "",
         contact.codeWord || "",
         contact.name || "",
+        contact.phone || "",
         "",
         contact.location || "",
-        contact.phone || "",
         contact.gospelResponse || "",
         contact.followUpRequested ? "Yes" : "No",
         contact.notes || "",
+        contact.loggedBy || "",
       ];
       console.log("Row to append:", JSON.stringify(row));
 
@@ -96,7 +97,7 @@ exports.onContactCreated = onDocumentCreated(
             range: tab + "!A1",
           });
           if (!existing.data.values || existing.data.values.length === 0) {
-            const headers = ["Date", "Week Name", "City", "Code Word", "Name", "Email", "Location", "Phone", "Gospel Response", "Follow-Up?", "Notes"];
+            const headers = ["Date", "Week Name", "City", "Code Word", "Name", "Phone", "Email", "Location", "Gospel Response", "Follow-Up?", "Notes", "Logged By"];
             await sheets.spreadsheets.values.append({
               spreadsheetId: sheetId,
               range: tab + "!A1",
