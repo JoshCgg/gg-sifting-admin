@@ -79,9 +79,9 @@ exports.onContactCreated = onDocumentCreated(
         weekData.city || "",
         contact.codeWord || "",
         contact.name || "",
+        "",
         contact.location || "",
         contact.phone || "",
-        "",
         contact.gospelResponse || "",
         contact.followUpRequested ? "Yes" : "No",
         contact.notes || "",
@@ -96,7 +96,7 @@ exports.onContactCreated = onDocumentCreated(
             range: tab + "!A1",
           });
           if (!existing.data.values || existing.data.values.length === 0) {
-            const headers = ["Date", "Week Name", "City", "Code Word", "Name", "Location", "Phone", "Email", "Gospel Response", "Follow-Up?", "Notes"];
+            const headers = ["Date", "Week Name", "City", "Code Word", "Name", "Email", "Location", "Phone", "Gospel Response", "Follow-Up?", "Notes"];
             await sheets.spreadsheets.values.append({
               spreadsheetId: sheetId,
               range: tab + "!A1",
