@@ -2867,8 +2867,8 @@ const ALLOWED_DOMAIN = 'globalgates.info';
         el.innerHTML = contacts.map((c, i) => {
           const dot = c.gospelResponse || c.response || 'na';
           const date = c.submittedAt
-            ? new Date(c.submittedAt).toLocaleDateString('en-US', { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' })
-            : '—';
+            ? (() => { const dt = c.submittedAt.toDate ? c.submittedAt.toDate() : new Date(c.submittedAt); return isNaN(dt) ? (c.clientDate || '—') : dt.toLocaleDateString('en-US', { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' }); })()
+            : (c.clientDate || '—');
           const followup = c.followUpRequested || c.contactInfo ? '📞 Follow-up requested' : '';
           const lang = c.language || c.lang || '';
           return `
@@ -3056,7 +3056,7 @@ const ALLOWED_DOMAIN = 'globalgates.info';
           const submittedAt = c.submittedAt;
           let dateStr = "";
           if (submittedAt) {
-            const dt = new Date(submittedAt);
+            const dt = submittedAt.toDate ? submittedAt.toDate() : new Date(submittedAt);
             if (!isNaN(dt)) dateStr = dt.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
           }
           const dot = c.gospelResponse || c.response || "";
