@@ -182,7 +182,7 @@
 
     .recipient-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
     .recipients-guidance { font-size: 13px; color: #2a618f; margin-bottom: 12px; line-height: 1.5; }
-    .recipient-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; align-items: center; padding: 12px 14px; background: var(--bright-gray); border-radius: 10px; border: 1.5px solid var(--border); }
+    .recipient-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items: center; padding: 12px 14px; background: var(--bright-gray); border-radius: 10px; border: 1.5px solid var(--border); }
     @media (max-width: 560px) { .recipient-row { grid-template-columns: 1fr; } }
     .recipient-row input { padding: 8px 10px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'Montserrat', sans-serif; font-size: 13px; background: white; width: 100%; }
     .recipient-row input:focus { outline: none; border-color: var(--blue-jeans); }
@@ -2312,7 +2312,7 @@ const ALLOWED_DOMAIN = 'globalgates.info';
     }
 
     function validateRecipients() {
-      const valid = ws.recipients.some(r => (r.email && isValidEmail(r.email)) || (r.phone && r.phone.trim()));
+      const valid = ws.recipients.some(r => r.email && isValidEmail(r.email));
       document.getElementById('err-recipients').style.display = valid ? 'none' : 'block';
       return valid;
     }
@@ -2410,7 +2410,6 @@ const ALLOWED_DOMAIN = 'globalgates.info';
       list.innerHTML = ws.recipients.map((r, i) => `
         <div class="recipient-row">
           <input type="text"  placeholder="Name"  value="${r.name}"  class="rec-name"  data-idx="${i}" />
-          <input type="tel" placeholder="Phone (for SMS alerts)" value="${r.phone || ''}" class="rec-phone" data-idx="${i}" />
           <input type="email" placeholder="Email" value="${r.email}" class="rec-email" data-idx="${i}" />
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
             <label class="recipient-primary">
@@ -2528,7 +2527,7 @@ const ALLOWED_DOMAIN = 'globalgates.info';
           ...ws.tally.map(t => ({ id: t.id, label: t.label, active: t.on })),
           ...ws.customTallyFields.filter(f => f.trim()).map((f, i) => ({ id: 'custom_' + i, label: f.trim(), active: true, custom: true })),
         ],
-        followUpRecipients: ws.recipients.filter(r => (r.email && isValidEmail(r.email)) || (r.phone && r.phone.trim() !== '')),
+        followUpRecipients: ws.recipients.filter(r => r.email && isValidEmail(r.email)),
         survey: surveyConfig,
         followUpMode: ws.followUpMode || 'inapp',
         followUpFormUrl: ws.followUpMode === 'link' ? (ws.followUpFormUrl || '') : '',
