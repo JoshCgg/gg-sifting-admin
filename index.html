@@ -1054,6 +1054,13 @@
             <div id="custom-fields-list"></div>
             <button class="btn-add" id="btn-add-custom-tally">+ Add custom field</button>
           </div>
+
+          <div style="margin-top:28px;">
+            <div class="step-title" style="font-size:15px;margin-bottom:4px;">Daily Checklist</div>
+            <div class="step-subtitle" style="margin-bottom:12px;">Items shown on the field team's home screen each day. Edit, remove, or add your own.</div>
+            <div id="checklist-editor-list"></div>
+            <button class="btn-add" id="btn-add-checklist-item">+ Add checklist item</button>
+          </div>
         </div>
         <div class="wizard-nav">
           <button class="btn-back" id="btn-step3-back">← Back</button>
@@ -1162,6 +1169,10 @@
           <div class="review-section">
             <div class="review-section-title">Tally Fields</div>
             <div class="review-list" id="review-tally"></div>
+          </div>
+          <div class="review-section">
+            <div class="review-section-title">Daily Checklist</div>
+            <div class="review-list" id="review-checklist"></div>
           </div>
           <div class="review-section">
             <div class="review-section-title">Follow-Up Recipients</div>
@@ -1572,6 +1583,15 @@ const ALLOWED_DOMAIN = 'globalgates.info';
       { id: 'infocards', label: 'Info Cards',                on: false },
     ];
 
+    const DEFAULT_CHECKLIST = [
+      'Morning quiet time & prayer',
+      'Morning training session attended',
+      'Prayer walked assigned area',
+      'Shared the gospel (or attempted)',
+      'Logged all contacts',
+      'Submitted daily tally',
+    ];
+
     // ── Wizard state ─────────────────────────────────────────
     let ws = {};
     function resetWizardState() {
@@ -1579,6 +1599,7 @@ const ALLOWED_DOMAIN = 'globalgates.info';
         modules:           JSON.parse(JSON.stringify(DEFAULT_MODULES)),
         tally:             JSON.parse(JSON.stringify(DEFAULT_TALLY)),
         customTallyFields: [],
+        checklist:         [...DEFAULT_CHECKLIST],
         recipients:        [{ name: '', email: '', primary: true }],
         newsletters:       [],
         followUpMode:      'inapp',
@@ -1639,6 +1660,11 @@ const ALLOWED_DOMAIN = 'globalgates.info';
           .map(f => f.label);
       }
 
+      // Apply checklist
+      ws.checklist = (chosen.checklistItems && chosen.checklistItems.length)
+        ? [...chosen.checklistItems]
+        : [...DEFAULT_CHECKLIST];
+
       // Apply recipients
       if (chosen.followUpRecipients && chosen.followUpRecipients.length) {
         ws.recipients = chosen.followUpRecipients.map(r => ({ ...r }));
@@ -1674,6 +1700,7 @@ const ALLOWED_DOMAIN = 'globalgates.info';
       // Re-render all steps
       await renderWizardModules();
       renderTallyFields();
+      renderChecklistEditor();
       renderRecipients();
       renderNewsletters();
       setSurveyMode(surveyMode);
@@ -1686,6 +1713,7 @@ const ALLOWED_DOMAIN = 'globalgates.info';
       resetWizardState();
       await renderWizardModules();
       renderTallyFields();
+      renderChecklistEditor();
       renderRecipients();
       renderNewsletters();
       setSurveyMode('inapp');
@@ -2039,6 +2067,11 @@ const ALLOWED_DOMAIN = 'globalgates.info';
         ws.customTallyFields = template.tallyFields.filter(f => f.custom).map(f => f.label);
       }
 
+      // Checklist
+      ws.checklist = (template.checklistItems && template.checklistItems.length)
+        ? [...template.checklistItems]
+        : [...DEFAULT_CHECKLIST];
+
       // Recipients
       if (template.followUpRecipients && template.followUpRecipients.length) {
         ws.recipients = template.followUpRecipients.map(r => ({ ...r }));
@@ -2062,7 +2095,7 @@ const ALLOWED_DOMAIN = 'globalgates.info';
 
       document.querySelectorAll('.field-error').forEach(el => el.style.display = 'none');
       setSurveyMode(surveyMode);
-      await renderWizardModules(); renderTallyFields(); renderRecipients(); renderNewsletters();
+      await renderWizardModules(); renderTallyFields(); renderChecklistEditor(); renderRecipients(); renderNewsletters();
       document.getElementById('screen-templates').style.display = 'none';
       document.getElementById('screen-wizard').style.display    = 'block';
       goStep(1);
@@ -2171,6 +2204,11 @@ const ALLOWED_DOMAIN = 'globalgates.info';
             .map(f => f.label);
         }
 
+        // Checklist
+        ws.checklist = (existingWeek.checklistItems && existingWeek.checklistItems.length)
+          ? [...existingWeek.checklistItems]
+          : [...DEFAULT_CHECKLIST];
+
         // Recipients
         if (existingWeek.followUpRecipients && existingWeek.followUpRecipients.length) {
           ws.recipients = existingWeek.followUpRecipients.map(r => ({ ...r }));
@@ -2206,7 +2244,7 @@ const ALLOWED_DOMAIN = 'globalgates.info';
       document.querySelectorAll('.field-error').forEach(el => el.style.display = 'none');
       document.querySelectorAll('.field input.invalid, .field select.invalid').forEach(el => el.classList.remove('invalid'));
       setSurveyMode(surveyMode);
-      await renderWizardModules(); renderTallyFields(); renderRecipients(); renderNewsletters();
+      await renderWizardModules(); renderTallyFields(); renderChecklistEditor(); renderRecipients(); renderNewsletters();
       document.getElementById('screen-dashboard').style.display = 'none';
       document.getElementById('screen-wizard').style.display   = 'block';
       goStep(1);
@@ -2404,6 +2442,29 @@ const ALLOWED_DOMAIN = 'globalgates.info';
       setTimeout(() => { const els = document.querySelectorAll('.custom-tally-input'); if (els.length) els[els.length-1].focus(); }, 50);
     });
 
+    function renderChecklistEditor() {
+      const c = document.getElementById('checklist-editor-list');
+      c.innerHTML = ws.checklist.map((item, i) => `
+        <div class="custom-field-row">
+          <input type="text" placeholder="Checklist item…" value="${item}" class="checklist-item-input" data-idx="${i}" />
+          <button class="btn-remove" data-idx="${i}">✕</button>
+        </div>
+      `).join('');
+      c.querySelectorAll('.checklist-item-input').forEach(el => el.addEventListener('input', e => {
+        ws.checklist[+e.target.dataset.idx] = e.target.value;
+      }));
+      c.querySelectorAll('.btn-remove').forEach(el => el.addEventListener('click', e => {
+        ws.checklist.splice(+e.target.dataset.idx, 1);
+        renderChecklistEditor();
+      }));
+    }
+
+    document.getElementById('btn-add-checklist-item').addEventListener('click', () => {
+      ws.checklist.push('');
+      renderChecklistEditor();
+      setTimeout(() => { const els = document.querySelectorAll('.checklist-item-input'); if (els.length) els[els.length-1].focus(); }, 50);
+    });
+
     // ── Recipients ───────────────────────────────────────────
     function renderRecipients() {
       const list = document.getElementById('recipient-list');
@@ -2487,6 +2548,11 @@ const ALLOWED_DOMAIN = 'globalgates.info';
         ? activeTally.map(l => `<span class="review-chip">${l}</span>`).join('')
         : '<span style="font-size:13px;color:var(--text-soft)">None selected</span>';
 
+      const activeChecklist = ws.checklist.filter(c => c.trim());
+      document.getElementById('review-checklist').innerHTML = activeChecklist.length
+        ? activeChecklist.map(l => `<span class="review-chip">${l}</span>`).join('')
+        : '<span style="font-size:13px;color:var(--text-soft)">None — field app will show default</span>';
+
       document.getElementById('review-recipients').innerHTML = ws.recipients.filter(r => r.email).map(r =>
         `<span class="review-chip">${r.name || r.email}${r.primary ? ' ★' : ''}</span>`
       ).join('') || '<span style="font-size:13px;color:var(--text-soft)">None added</span>';
@@ -2527,6 +2593,7 @@ const ALLOWED_DOMAIN = 'globalgates.info';
           ...ws.tally.map(t => ({ id: t.id, label: t.label, active: t.on })),
           ...ws.customTallyFields.filter(f => f.trim()).map((f, i) => ({ id: 'custom_' + i, label: f.trim(), active: true, custom: true })),
         ],
+        checklistItems: ws.checklist.filter(c => c.trim()),
         followUpRecipients: ws.recipients.filter(r => r.email && isValidEmail(r.email)),
         survey: surveyConfig,
         followUpMode: ws.followUpMode || 'inapp',
@@ -2541,6 +2608,7 @@ const ALLOWED_DOMAIN = 'globalgates.info';
             city:               getCityValue(),
             activeModules:      weekData.activeModules,
             tallyFields:        weekData.tallyFields,
+            checklistItems:     weekData.checklistItems,
             followUpRecipients: weekData.followUpRecipients,
             survey:             weekData.survey,
             followUpMode:       weekData.followUpMode,
