@@ -179,6 +179,9 @@
     .toggle-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: white; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
     .toggle-item.on .toggle-switch { background: var(--blue-jeans); }
     .toggle-item.on .toggle-switch::after { transform: translateX(18px); }
+    .btn-move { width: 24px; height: 24px; border-radius: 6px; border: 1.5px solid var(--border); background: var(--bright-gray); color: var(--indigo); font-size: 12px; line-height: 1; padding: 0; flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+    .btn-move:hover:not(:disabled) { border-color: var(--indigo); background: rgba(27,69,106,0.08); }
+    .btn-move:disabled { opacity: 0.35; cursor: not-allowed; }
 
     .recipient-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
     .recipients-guidance { font-size: 13px; color: #2a618f; margin-bottom: 12px; line-height: 1.5; }
@@ -2421,15 +2424,27 @@ const ALLOWED_DOMAIN = 'globalgates.info';
         on:    existingOnState.hasOwnProperty(m.slug || m.id) ? existingOnState[m.slug || m.id] : (m.status === 'global'),
       }));
 
-      list.innerHTML = ws.modules.map((m, i) => `
-        <div class="toggle-item ${m.on ? 'on' : ''}" data-idx="${i}">
-          <div class="toggle-item-left">
-            <span class="toggle-item-name">${m.label}</span>
-            <span class="toggle-item-desc">${m.desc}</span>
+      renderModulesToggleList();
+    }
+
+    function renderModulesToggleList() {
+      const list = document.getElementById('wizard-modules-list');
+      list.innerHTML = ws.modules.map((m, i) => {
+        const isDevotion = m.id.startsWith('devotion-');
+        return `
+          <div class="toggle-item ${m.on ? 'on' : ''}" data-idx="${i}">
+            <div class="toggle-item-left">
+              <span class="toggle-item-name">${m.label}</span>
+              <span class="toggle-item-desc">${isDevotion ? 'Always shown in day order (1, 2, 3…)' : m.desc}</span>
+            </div>
+            <div class="toggle-item-controls" style="display:flex;align-items:center;gap:6px;">
+              <button class="btn-move" data-idx="${i}" data-dir="-1" ${isDevotion || i === 0 ? 'disabled' : ''} onclick="event.stopPropagation()">↑</button>
+              <button class="btn-move" data-idx="${i}" data-dir="1" ${isDevotion || i === ws.modules.length - 1 ? 'disabled' : ''} onclick="event.stopPropagation()">↓</button>
+              <div class="toggle-switch"></div>
+            </div>
           </div>
-          <div class="toggle-switch"></div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
 
       list.querySelectorAll('.toggle-item').forEach(el => {
         el.addEventListener('click', () => {
@@ -2438,6 +2453,20 @@ const ALLOWED_DOMAIN = 'globalgates.info';
           el.classList.toggle('on', ws.modules[i].on);
         });
       });
+
+      list.querySelectorAll('.btn-move').forEach(el => {
+        el.addEventListener('click', e => {
+          e.stopPropagation();
+          moveModule(+el.dataset.idx, +el.dataset.dir);
+        });
+      });
+    }
+
+    function moveModule(i, dir) {
+      const j = i + dir;
+      if (j < 0 || j >= ws.modules.length) return;
+      [ws.modules[i], ws.modules[j]] = [ws.modules[j], ws.modules[i]];
+      renderModulesToggleList();
     }
 
     // ── Tally ────────────────────────────────────────────────
