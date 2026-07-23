@@ -1,0 +1,13 @@
+{
+  "name": "GG Sifting Admin",
+  "short_name": "Sifting Admin",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#1B456A",
+  "theme_color": "#1B456A",
+  "icons": [
+    { "src": "icons/sifting_logo-180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "icons/sifting_logo-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/sifting_logo-1024.png", "sizes": "1024x1024", "type": "image/png" }
+  ]
+}
