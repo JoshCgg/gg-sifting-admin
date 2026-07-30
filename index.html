@@ -454,6 +454,26 @@
     }
     .module-card-actions button.btn-approve:hover { background: #218838; }
 
+    /* ── Tutorial video embeds (scoped — do not target bare iframe) ── */
+    .tutorial-video-embed {
+      position: relative;
+      width: 100%;
+      max-width: 100%;
+      aspect-ratio: 16 / 9;
+      margin: 12px 0;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #000;
+    }
+    .tutorial-video-embed iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
     /* ── Pending approval banner ───────────────────────────────── */
     .pending-banner {
       background: #fff3cd;
@@ -1867,11 +1887,14 @@ const ALLOWED_DOMAIN = 'globalgates.info';
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('app').style.display = 'flex';
         try {
-          await setDoc(doc(db, 'users', user.uid), {
+          const existingUserDoc = await getDoc(doc(db, 'users', user.uid));
+          const userPayload = {
             displayName: user.displayName || '',
             email: user.email,
             lastSignIn: serverTimestamp(),
-          }, { merge: true });
+          };
+          if (!existingUserDoc.exists()) userPayload.role = 'user';
+          await setDoc(doc(db, 'users', user.uid), userPayload, { merge: true });
         } catch(e) { console.warn('Could not update lastSignIn:', e); }
         showDashboard();
         await window.revealNavForRole();
@@ -3433,20 +3456,16 @@ const ALLOWED_DOMAIN = 'globalgates.info';
         const role = userDocSnap.exists() ? (userDocSnap.data().role || 'user') : 'user';
         window._currentUserRole = role;
         const navUsers = document.getElementById('nav-users');
-        if (navUsers && (role === 'super_admin' || role === 'admin')) {
-          navUsers.style.display = '';
-        }
+        if (navUsers) navUsers.style.display = (role === 'super_admin' || role === 'admin') ? '' : 'none';
         const navTutorials = document.getElementById('nav-tutorials');
-        if (navTutorials && (role === 'super_admin' || role === 'admin')) {
-          navTutorials.style.display = '';
-        }
+        if (navTutorials) navTutorials.style.display = (role === 'super_admin' || role === 'admin' || role === 'user') ? '' : 'none';
         const navFeedback = document.getElementById('nav-feedback');
-        if (navFeedback && (role === 'super_admin' || role === 'admin')) {
-          navFeedback.style.display = '';
-        }
+        if (navFeedback) navFeedback.style.display = (role === 'super_admin' || role === 'admin' || role === 'user') ? '' : 'none';
       } catch(e) {
         console.warn('Could not fetch user role:', e);
         window._currentUserRole = 'user';
+        const navUsers = document.getElementById('nav-users');
+        if (navUsers) navUsers.style.display = 'none';
       }
     };
 
@@ -3994,8 +4013,8 @@ const ALLOWED_DOMAIN = 'globalgates.info';
     function buildTutorialCard(t) {
       const embedUrl = parseVideoEmbedUrl(t.videoUrl);
       const player = embedUrl
-        ? `<div style="position:relative;padding-top:56.25%;margin:12px 0;border-radius:8px;overflow:hidden;background:#000;">
-             <iframe src="${embedUrl}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        ? `<div class="tutorial-video-embed">
+             <iframe src="${embedUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>
            </div>`
         : `<p style="margin:12px 0;"><a href="${escHtml(t.videoUrl || '')}" target="_blank" rel="noopener" style="color:var(--blue-jeans);font-weight:700;">▶ Open Video</a></p>`;
       const actions = currentUserIsSuperAdmin()
