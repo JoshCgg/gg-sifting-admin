@@ -71,5 +71,13 @@ service cloud.firestore {
       allow create: if isVerifiedGGUser();
       allow update, delete: if isSuperAdmin() || resource.data.createdBy == request.auth.uid;
     }
+    match /tutorials/{tutorialId} {
+      allow read: if isAdmin();
+      allow write: if isSuperAdmin();
+    }
+    match /feedback/{feedbackId} {
+      allow create: if isVerifiedGGUser();
+      allow read, update, delete: if isSuperAdmin();
+    }
   }
 }

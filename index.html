@@ -903,6 +903,8 @@
       <div class="topbar-center" style="display:flex;gap:6px;align-items:center;">
         <a onclick="window.showScreen('modules-screen'); window.loadModules();" id="nav-modules" style="display:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:700;color:rgba(255,255,255,0.85);text-decoration:none;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='transparent'">📦 Modules</a>
         <a onclick="window.showScreen('users-screen'); window.loadUsers();" id="nav-users" style="display:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:700;color:rgba(255,255,255,0.85);text-decoration:none;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='transparent'">👥 Users</a>
+        <a onclick="window.showScreen('tutorials-screen'); window.loadTutorials();" id="nav-tutorials" style="display:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:700;color:rgba(255,255,255,0.85);text-decoration:none;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='transparent'">🎓 Tutorials</a>
+        <a onclick="window.showScreen('feedback-screen'); window.loadFeedback();" id="nav-feedback" style="display:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:700;color:rgba(255,255,255,0.85);text-decoration:none;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='transparent'">💬 Feedback</a>
       </div>
       <div class="topbar-right">
         <div class="user-pill">
@@ -1461,6 +1463,82 @@
       </div>
       <div id="users-list">
         <p style="color:#aaa;text-align:center;padding:40px 0;">Loading users…</p>
+      </div>
+    </div>
+
+    <!-- ── TUTORIALS SCREEN ────────────────────────────────────── -->
+    <div id="tutorials-screen" class="screen" style="display:none;">
+      <div class="screen-header">
+        <h2>🎓 Tutorials</h2>
+        <div class="header-actions">
+          <button id="btn-add-tutorial" onclick="window.openTutorialModal(null)" style="display:none;padding:8px 20px;border-radius:8px;border:none;background:#1B456A;color:#fff;font-size:0.9rem;font-weight:700;cursor:pointer;font-family:'Montserrat',sans-serif;">+ Add Video</button>
+        </div>
+      </div>
+      <p style="font-size:0.85rem;color:#666;margin-bottom:20px;line-height:1.5;">Training videos for team leaders and field volunteers.</p>
+      <div id="tutorials-list">
+        <p style="color:#aaa;text-align:center;padding:40px 0;">Loading tutorials…</p>
+      </div>
+    </div>
+
+    <!-- ── ADD/EDIT TUTORIAL MODAL ─────────────────────────────── -->
+    <div class="modal-overlay" id="tutorial-modal">
+      <div class="modal-card">
+        <div class="modal-title" id="tutorial-modal-title">Add Video</div>
+        <div class="field">
+          <label>Title</label>
+          <input type="text" id="tut-title" placeholder="e.g. How to Log a Contact" maxlength="100">
+          <div class="field-error" id="err-tut-title">Please enter a title.</div>
+        </div>
+        <div class="field">
+          <label>Description</label>
+          <textarea id="tut-desc" placeholder="1–2 sentences about what this covers." style="min-height:70px;"></textarea>
+        </div>
+        <div class="field">
+          <label>Video URL</label>
+          <input type="url" id="tut-video-url" placeholder="YouTube or Google Drive share link">
+          <div class="field-hint">Paste a YouTube link (youtube.com/watch?v=… or youtu.be/…) or a Google Drive share link.</div>
+          <div class="field-error" id="err-tut-video-url">Please enter a video URL.</div>
+        </div>
+        <div class="field" style="margin-bottom:16px;">
+          <label>Order</label>
+          <input type="number" id="tut-order" placeholder="0" step="1">
+          <div class="field-hint">Lower numbers appear first.</div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-cancel" id="btn-tutorial-cancel" onclick="window.closeTutorialModal()">Cancel</button>
+          <button class="btn-primary" id="btn-tutorial-save" onclick="window.saveTutorial()">💾 Save Video</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── FEEDBACK SCREEN ─────────────────────────────────────── -->
+    <div id="feedback-screen" class="screen" style="display:none;">
+      <div class="screen-header">
+        <h2>💬 Feedback</h2>
+      </div>
+      <div class="editor-section">
+        <h3>Submit Feedback</h3>
+        <div class="form-row">
+          <label>Type</label>
+          <select id="fb-type">
+            <option value="suggestion">💡 Suggestion</option>
+            <option value="bug">🐞 Bug</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Message *</label>
+          <textarea id="fb-message" placeholder="What's on your mind?" style="min-height:100px;"></textarea>
+        </div>
+        <button class="btn-primary" id="btn-fb-submit" onclick="window.submitFeedback()">Submit</button>
+        <p id="fb-confirm" style="display:none;color:#16a34a;font-weight:700;margin-top:10px;">Thanks — got it ✅</p>
+      </div>
+      <div id="feedback-admin-section" style="display:none;margin-top:30px;">
+        <div class="screen-header">
+          <h2 style="font-size:1.1rem;">All Feedback</h2>
+        </div>
+        <div id="feedback-list">
+          <p style="color:#aaa;text-align:center;padding:40px 0;">Loading feedback…</p>
+        </div>
       </div>
     </div>
 
@@ -3320,7 +3398,7 @@ const ALLOWED_DOMAIN = 'globalgates.info';
     window.showScreen = function(screenId) {
       [
         'screen-dashboard','screen-wizard','screen-templates','screen-week-detail',
-        'modules-screen','module-editor-screen','users-screen'
+        'modules-screen','module-editor-screen','users-screen','tutorials-screen','feedback-screen'
       ].forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
       const target = document.getElementById(screenId);
       if (target) { target.style.display = 'block'; window.scrollTo(0, 0); }
@@ -3330,7 +3408,7 @@ const ALLOWED_DOMAIN = 'globalgates.info';
     ['topbar-home','btn-back-dashboard','btn-templates-back'].forEach(btnId => {
       const el = document.getElementById(btnId);
       if (el) el.addEventListener('click', () => {
-        ['modules-screen','module-editor-screen','users-screen'].forEach(sid => {
+        ['modules-screen','module-editor-screen','users-screen','tutorials-screen','feedback-screen'].forEach(sid => {
           const s = document.getElementById(sid); if (s) s.style.display = 'none';
         });
       });
@@ -3357,6 +3435,14 @@ const ALLOWED_DOMAIN = 'globalgates.info';
         const navUsers = document.getElementById('nav-users');
         if (navUsers && (role === 'super_admin' || role === 'admin')) {
           navUsers.style.display = '';
+        }
+        const navTutorials = document.getElementById('nav-tutorials');
+        if (navTutorials && (role === 'super_admin' || role === 'admin')) {
+          navTutorials.style.display = '';
+        }
+        const navFeedback = document.getElementById('nav-feedback');
+        if (navFeedback && (role === 'super_admin' || role === 'admin')) {
+          navFeedback.style.display = '';
         }
       } catch(e) {
         console.warn('Could not fetch user role:', e);
@@ -3860,6 +3946,215 @@ const ALLOWED_DOMAIN = 'globalgates.info';
         const sel = document.querySelector(`select[onchange*="${userId}"]`);
         if (sel) { sel.style.borderColor = '#28a745'; setTimeout(() => sel.style.borderColor = '', 1500); }
       } catch(e) { alert('Error updating role: ' + e.message); }
+    };
+
+    // ─────────────────────────────────────────────────────────────
+    // TUTORIALS SCREEN
+    // ─────────────────────────────────────────────────────────────
+
+    let allTutorials = [];
+    let editingTutorialId = null;
+
+    function parseVideoEmbedUrl(url) {
+      if (!url) return null;
+      const ytWatch = url.match(/[?&]v=([a-zA-Z0-9_-]{6,})/);
+      if (ytWatch) return `https://www.youtube.com/embed/${ytWatch[1]}`;
+      const ytShort = url.match(/youtu\.be\/([a-zA-Z0-9_-]{6,})/);
+      if (ytShort) return `https://www.youtube.com/embed/${ytShort[1]}`;
+      const drive = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+      if (drive) return `https://drive.google.com/file/d/${drive[1]}/preview`;
+      return null;
+    }
+
+    window.loadTutorials = async function() {
+      const btnAdd = document.getElementById('btn-add-tutorial');
+      if (btnAdd) btnAdd.style.display = currentUserIsSuperAdmin() ? '' : 'none';
+      document.getElementById('tutorials-list').innerHTML =
+        '<p style="color:#aaa;text-align:center;padding:40px 0;">Loading tutorials…</p>';
+      try {
+        const snap = await getDocs(query(collection(db, 'tutorials'), orderBy('order', 'asc')));
+        allTutorials = snap?.docs ? snap.docs.map(d => ({ id: d.id, ...d.data() })) : [];
+        window.renderTutorials();
+      } catch(e) {
+        console.error('loadTutorials error:', e);
+        document.getElementById('tutorials-list').innerHTML =
+          `<p style="color:#dc3545;text-align:center;padding:40px 0;">Error: ${e.message}</p>`;
+      }
+    };
+
+    window.renderTutorials = function() {
+      if (allTutorials.length === 0) {
+        document.getElementById('tutorials-list').innerHTML =
+          '<p style="color:#aaa;text-align:center;padding:40px 0;">No tutorials yet.</p>';
+        return;
+      }
+      document.getElementById('tutorials-list').innerHTML = allTutorials.map(t => buildTutorialCard(t)).join('');
+    };
+
+    function buildTutorialCard(t) {
+      const embedUrl = parseVideoEmbedUrl(t.videoUrl);
+      const player = embedUrl
+        ? `<div style="position:relative;padding-top:56.25%;margin:12px 0;border-radius:8px;overflow:hidden;background:#000;">
+             <iframe src="${embedUrl}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+           </div>`
+        : `<p style="margin:12px 0;"><a href="${escHtml(t.videoUrl || '')}" target="_blank" rel="noopener" style="color:var(--blue-jeans);font-weight:700;">▶ Open Video</a></p>`;
+      const actions = currentUserIsSuperAdmin()
+        ? `<div class="module-card-actions">
+             <button onclick="window.openTutorialModal('${t.id}')">Edit</button>
+             <button class="btn-danger" onclick="window.deleteTutorial('${t.id}')">Delete</button>
+           </div>`
+        : '';
+      return `<div class="module-card">
+        <div class="module-card-top">
+          <p class="module-card-title">${escHtml(t.title || '—')}</p>
+        </div>
+        <p class="module-card-desc">${escHtml(t.description || '')}</p>
+        ${player}
+        ${actions}
+      </div>`;
+    }
+
+    window.openTutorialModal = function(id) {
+      editingTutorialId = id;
+      const t = id ? allTutorials.find(x => x.id === id) : null;
+      document.getElementById('tutorial-modal-title').textContent = t ? 'Edit Video' : 'Add Video';
+      document.getElementById('tut-title').value = t?.title || '';
+      document.getElementById('tut-desc').value = t?.description || '';
+      document.getElementById('tut-video-url').value = t?.videoUrl || '';
+      document.getElementById('tut-order').value = t ? (t.order ?? 0) : '';
+      document.querySelectorAll('#tutorial-modal .field-error').forEach(el => el.style.display = 'none');
+      document.getElementById('tutorial-modal').classList.add('show');
+    };
+
+    window.closeTutorialModal = function() {
+      document.getElementById('tutorial-modal').classList.remove('show');
+      editingTutorialId = null;
+    };
+
+    window.saveTutorial = async function() {
+      document.querySelectorAll('#tutorial-modal .field-error').forEach(el => el.style.display = 'none');
+      const title = document.getElementById('tut-title').value.trim();
+      const videoUrl = document.getElementById('tut-video-url').value.trim();
+      let hasError = false;
+      if (!title) { document.getElementById('err-tut-title').style.display = 'block'; hasError = true; }
+      if (!videoUrl) { document.getElementById('err-tut-video-url').style.display = 'block'; hasError = true; }
+      if (hasError) return;
+      const description = document.getElementById('tut-desc').value.trim();
+      const order = Number(document.getElementById('tut-order').value) || 0;
+      try {
+        if (editingTutorialId) {
+          await updateDoc(doc(db, 'tutorials', editingTutorialId), { title, description, videoUrl, order });
+        } else {
+          await addDoc(collection(db, 'tutorials'), { title, description, videoUrl, order, createdAt: serverTimestamp() });
+        }
+        window.closeTutorialModal();
+        window.loadTutorials();
+      } catch(e) { alert('Error saving video: ' + e.message); }
+    };
+
+    window.deleteTutorial = async function(id) {
+      if (!confirm('Delete this tutorial video?')) return;
+      try {
+        await deleteDoc(doc(db, 'tutorials', id));
+        window.loadTutorials();
+      } catch(e) { alert('Error deleting video: ' + e.message); }
+    };
+
+    // ─────────────────────────────────────────────────────────────
+    // FEEDBACK SCREEN
+    // ─────────────────────────────────────────────────────────────
+
+    let allFeedback = [];
+
+    window.loadFeedback = function() {
+      document.getElementById('fb-confirm').style.display = 'none';
+      document.getElementById('fb-message').value = '';
+      document.getElementById('fb-type').value = 'suggestion';
+      if (currentUserIsSuperAdmin()) {
+        document.getElementById('feedback-admin-section').style.display = '';
+        window.loadFeedbackList();
+      } else {
+        document.getElementById('feedback-admin-section').style.display = 'none';
+      }
+    };
+
+    window.loadFeedbackList = async function() {
+      document.getElementById('feedback-list').innerHTML =
+        '<p style="color:#aaa;text-align:center;padding:40px 0;">Loading feedback…</p>';
+      try {
+        const snap = await getDocs(query(collection(db, 'feedback'), orderBy('createdAt', 'desc')));
+        allFeedback = snap?.docs ? snap.docs.map(d => ({ id: d.id, ...d.data() })) : [];
+        window.renderFeedback();
+      } catch(e) {
+        console.error('loadFeedbackList error:', e);
+        document.getElementById('feedback-list').innerHTML =
+          `<p style="color:#dc3545;text-align:center;padding:40px 0;">Error: ${e.message}</p>`;
+      }
+    };
+
+    window.renderFeedback = function() {
+      if (allFeedback.length === 0) {
+        document.getElementById('feedback-list').innerHTML =
+          '<p style="color:#aaa;text-align:center;padding:40px 0;">No feedback yet.</p>';
+        return;
+      }
+      document.getElementById('feedback-list').innerHTML = allFeedback.map(f => buildFeedbackCard(f)).join('');
+    };
+
+    function buildFeedbackCard(f) {
+      const typeBadge = f.type === 'bug'
+        ? '<span class="badge" style="background:var(--orange);color:#fff;">🐞 Bug</span>'
+        : '<span class="badge" style="background:var(--blue-jeans);color:#fff;">💡 Suggestion</span>';
+      const weekBadge = f.weekCode ? `<span class="badge badge-draft">${escHtml(f.weekCode)}</span>` : '';
+      const created = f.createdAt
+        ? new Date(f.createdAt.toDate ? f.createdAt.toDate() : f.createdAt).toLocaleString()
+        : '';
+      return `<div class="module-card">
+        <div class="module-card-top">
+          <div>
+            <p class="module-card-title">${escHtml(f.submittedBy || '—')}</p>
+            <div class="module-card-meta">${typeBadge}${weekBadge}</div>
+          </div>
+          <span style="font-size:0.78rem;color:#999;white-space:nowrap;">${created}</span>
+        </div>
+        <p class="module-card-desc">${escHtml(f.message || '')}</p>
+        <div class="module-card-actions">
+          <select class="user-role-select" onchange="window.updateFeedbackStatus('${f.id}', this.value)">
+            <option value="new" ${f.status === 'new' ? 'selected' : ''}>New</option>
+            <option value="reviewed" ${f.status === 'reviewed' ? 'selected' : ''}>Reviewed</option>
+            <option value="done" ${f.status === 'done' ? 'selected' : ''}>Done</option>
+          </select>
+        </div>
+      </div>`;
+    }
+
+    window.updateFeedbackStatus = async function(id, status) {
+      try {
+        await updateDoc(doc(db, 'feedback', id), { status });
+        const f = allFeedback.find(x => x.id === id);
+        if (f) f.status = status;
+      } catch(e) { alert('Error updating status: ' + e.message); }
+    };
+
+    window.submitFeedback = async function() {
+      const type = document.getElementById('fb-type').value;
+      const message = document.getElementById('fb-message').value.trim();
+      if (!message) { alert('Please enter a message.'); return; }
+      try {
+        await addDoc(collection(db, 'feedback'), {
+          type,
+          message,
+          submittedBy: currentUser.displayName || currentUser.email.split('@')[0],
+          weekCode: currentDetailWeek?.codeWord || null,
+          status: 'new',
+          createdAt: serverTimestamp()
+        });
+        document.getElementById('fb-message').value = '';
+        const confirmEl = document.getElementById('fb-confirm');
+        confirmEl.style.display = 'block';
+        setTimeout(() => { confirmEl.style.display = 'none'; }, 4000);
+        if (currentUserIsSuperAdmin()) window.loadFeedbackList();
+      } catch(e) { alert('Error submitting feedback: ' + e.message); }
     };
 
     function escHtml(str) {
