@@ -25,7 +25,7 @@
       --border:      rgba(27,69,106,0.12);
     }
 
-    html, body { height: 100%; font-family: 'Montserrat', sans-serif; background: var(--indigo); }
+    html, body { height: 100%; overflow-x: hidden; font-family: 'Montserrat', sans-serif; background: var(--indigo); }
 
     body::before {
       content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
@@ -74,7 +74,7 @@
     .access-note strong { color: rgba(236,241,238,0.65); font-weight: 600; }
 
     /* APP SHELL */
-    #app { display: none; min-height: 100vh; flex-direction: column; background: var(--bright-gray); }
+    #app { display: none; min-height: 100vh; overflow-x: hidden; flex-direction: column; background: var(--bright-gray); }
 
     .topbar { background: var(--indigo); padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 12px rgba(0,0,0,0.15); position: sticky; top: 0; z-index: 100; }
     .topbar-left { display: flex; align-items: center; gap: 10px; cursor: pointer; }
@@ -921,6 +921,7 @@
         <span class="topbar-title">Sifting Admin</span>
       </div>
       <div class="topbar-center" style="display:flex;gap:6px;align-items:center;">
+        <a onclick="document.getElementById('topbar-home').click();" id="nav-weeks" style="display:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:700;color:rgba(255,255,255,0.85);text-decoration:none;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='transparent'">📅 Weeks</a>
         <a onclick="window.showScreen('modules-screen'); window.loadModules();" id="nav-modules" style="display:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:700;color:rgba(255,255,255,0.85);text-decoration:none;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='transparent'">📦 Modules</a>
         <a onclick="window.showScreen('users-screen'); window.loadUsers();" id="nav-users" style="display:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:700;color:rgba(255,255,255,0.85);text-decoration:none;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='transparent'">👥 Users</a>
         <a onclick="window.showScreen('tutorials-screen'); window.loadTutorials();" id="nav-tutorials" style="display:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:700;color:rgba(255,255,255,0.85);text-decoration:none;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='transparent'">🎓 Tutorials</a>
@@ -1910,6 +1911,7 @@ const ALLOWED_DOMAIN = 'globalgates.info';
 
     // ── Dashboard ────────────────────────────────────────────
     async function showDashboard() {
+      window.scrollTo(0, 0);
       document.getElementById('screen-dashboard').style.display  = 'block';
       document.getElementById('screen-wizard').style.display     = 'none';
       document.getElementById('screen-templates').style.display  = 'none';
@@ -3449,6 +3451,8 @@ const ALLOWED_DOMAIN = 'globalgates.info';
     let rejectTargetModuleId = null;
 
     window.revealNavForRole = async function() {
+      const navWeeks = document.getElementById('nav-weeks');
+      if (navWeeks) navWeeks.style.display = '';
       const navModules = document.getElementById('nav-modules');
       if (navModules) navModules.style.display = '';
       try {
